@@ -7,11 +7,6 @@ using Xunit;
 
 namespace CardDemo.Tests.Integration;
 
-// NOTA: Tests de integración temporalmente deshabilitados debido a conflicto
-// de EF Core database providers (SqlServer vs InMemory) en WebApplicationFactory.
-// Problema conocido: https://github.com/dotnet/efcore/issues/24197
-// Los tests unitarios (30 tests) cubren la lógica de negocio exitosamente.
-
 public class CustomersControllerTests : IClassFixture<CustomWebApplicationFactory>
 {
     private readonly HttpClient _client;
@@ -31,7 +26,7 @@ public class CustomersControllerTests : IClassFixture<CustomWebApplicationFactor
         return loginResponse!.Token;
     }
 
-    [Fact(Skip = "Integration tests disabled - EF Core provider conflict")]
+    [Fact]
     public async Task GetAllCustomers_ShouldReturnUnauthorized_WhenNoToken()
     {
         // Act
@@ -41,7 +36,7 @@ public class CustomersControllerTests : IClassFixture<CustomWebApplicationFactor
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
-    [Fact(Skip = "Integration tests disabled - EF Core provider conflict")]
+    [Fact]
     public async Task GetAllCustomers_ShouldReturnPagedResult_WhenAuthenticated()
     {
         // Arrange
@@ -60,7 +55,7 @@ public class CustomersControllerTests : IClassFixture<CustomWebApplicationFactor
         result.TotalCount.Should().BeGreaterThanOrEqualTo(0);
     }
 
-    [Fact(Skip = "Integration tests disabled - EF Core provider conflict")]
+    [Fact]
     public async Task GetCustomerById_ShouldReturnCustomer_WhenExists()
     {
         // Arrange
@@ -78,7 +73,7 @@ public class CustomersControllerTests : IClassFixture<CustomWebApplicationFactor
         customer!.CustomerId.Should().Be(1);
     }
 
-    [Fact(Skip = "Integration tests disabled - EF Core provider conflict")]
+    [Fact]
     public async Task GetCustomerById_ShouldReturnNotFound_WhenDoesNotExist()
     {
         // Arrange
