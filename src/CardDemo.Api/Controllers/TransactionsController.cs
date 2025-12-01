@@ -22,6 +22,40 @@ public class TransactionsController : ControllerBase
     }
 
     /// <summary>
+    /// Get all transactions with pagination
+    /// </summary>
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAllTransactions(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 20)
+    {
+        var query = new GetAllTransactionsQuery(pageNumber, pageSize);
+        var response = await _mediator.Send(query);
+        
+        return Ok(response);
+    }
+
+    /// <summary>
+    /// Get transaction by ID
+    /// </summary>
+    [HttpGet("{transactionId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetTransactionById(string transactionId)
+    {
+        var query = new GetTransactionByIdQuery(transactionId);
+        var response = await _mediator.Send(query);
+        
+        if (response == null)
+        {
+            return NotFound(new { message = $"Transaction {transactionId} not found" });
+        }
+        
+        return Ok(response);
+    }
+
+    /// <summary>
     /// Create a new transaction
     /// </summary>
     [HttpPost]
