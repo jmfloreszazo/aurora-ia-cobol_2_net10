@@ -66,8 +66,11 @@ builder.Services.AddSwaggerGen(options =>
 // Add Application services (MediatR, FluentValidation, AutoMapper)
 builder.Services.AddApplication();
 
-// Add Infrastructure services (EF Core, Authentication)
-builder.Services.AddInfrastructure(builder.Configuration);
+// Add Infrastructure services (EF Core, Authentication) - Skip in Test environment
+if (!builder.Environment.IsEnvironment("Test"))
+{
+    builder.Services.AddInfrastructure(builder.Configuration);
+}
 
 // Configure JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");

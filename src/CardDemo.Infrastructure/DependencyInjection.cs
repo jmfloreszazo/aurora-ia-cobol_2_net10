@@ -10,13 +10,19 @@ namespace CardDemo.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructure(
+        this IServiceCollection services, 
+        IConfiguration configuration,
+        bool skipDbContext = false)
     {
-        // Database
-        services.AddDbContext<CardDemoDbContext>(options =>
-            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
-        
-        services.AddScoped<ICardDemoDbContext>(provider => provider.GetRequiredService<CardDemoDbContext>());
+        // Database - Solo registrar si no se ha marcado skip (usado en tests)
+        if (!skipDbContext)
+        {
+            services.AddDbContext<CardDemoDbContext>(options =>
+                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+            
+            services.AddScoped<ICardDemoDbContext>(provider => provider.GetRequiredService<CardDemoDbContext>());
+        }
 
         // Authentication
         services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
