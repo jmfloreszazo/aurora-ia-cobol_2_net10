@@ -53,4 +53,15 @@ public class AccountsController : ControllerBase
         
         return Ok(response);
     }
+
+    /// <summary>
+    /// Get all accounts (for testing purposes)
+    /// </summary>
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAllAccounts()
+    {
+        // Retornar lista vacía por ahora - en producción consultaría la base de datos
+        return Ok(new List<object>());
+    }
 }

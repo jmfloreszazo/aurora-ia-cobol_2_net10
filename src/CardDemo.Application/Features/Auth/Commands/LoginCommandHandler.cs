@@ -48,6 +48,8 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResponse>
             if (user.FailedLoginAttempts >= 3)
             {
                 user.IsLocked = true;
+                await _context.SaveChangesAsync(cancellationToken);
+                throw new UnauthorizedAccessException("Account is locked. Please contact administrator.");
             }
             
             await _context.SaveChangesAsync(cancellationToken);

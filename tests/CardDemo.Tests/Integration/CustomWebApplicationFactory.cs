@@ -18,6 +18,8 @@ namespace CardDemo.Tests.Integration;
 
 public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
+    private readonly string _databaseName = $"CardDemoTestDb_{Guid.NewGuid()}";
+    
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Test");
@@ -46,10 +48,10 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             // Add Infrastructure services (authentication, password hasher, etc) but skip DbContext
             services.AddInfrastructure(configuration, skipDbContext: true);
 
-            // Registrar DbContext con InMemory database
+            // Registrar DbContext con InMemory database - nombre único para cada factory
             services.AddDbContext<CardDemoDbContext>(options =>
             {
-                options.UseInMemoryDatabase("CardDemoTestDb");
+                options.UseInMemoryDatabase(_databaseName);
             });
 
             services.AddScoped<ICardDemoDbContext>(provider => 
