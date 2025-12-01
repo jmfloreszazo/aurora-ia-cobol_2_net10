@@ -21,6 +21,15 @@ public class AdminSteps
         _context = context;
     }
 
+    /// <summary>
+    /// Helper method to save response both locally and in shared context
+    /// </summary>
+    private void SaveResponse(HttpResponseMessage response)
+    {
+        _response = response;
+        _context.LastHttpResponse = response;
+    }
+
     // GivenIAmLoggedInAsWithRole está en AuthenticationSteps.cs (step común)
 
     [Given(@"the following users exist:")]
@@ -39,7 +48,7 @@ public class AdminSteps
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _context.AuthToken);
         }
         
-        _response = await _context.Client.GetAsync("/api/users");
+        SaveResponse(await _context.Client.GetAsync("/api/users"));
     }
 
     [Then(@"I should see (\d+) users in the list \(including myself\)")]
@@ -61,14 +70,43 @@ public class AdminSteps
     [When(@"I enter the following user information:")]
     public async Task WhenIEnterTheFollowingUserInformation(Table table)
     {
-        var row = table.Rows[0];
+        string userId = "", password = "", firstName = "", lastName = "", userType = "USER";
+
+        // Handle key-value format: | Field | Value |
+        if (table.Header.Contains("Field"))
+        {
+            foreach (var row in table.Rows)
+            {
+                var field = row["Field"];
+                var value = row["Value"];
+                switch (field)
+                {
+                    case "User ID": userId = value; break;
+                    case "Password": password = value; break;
+                    case "First Name": firstName = value; break;
+                    case "Last Name": lastName = value; break;
+                    case "User Type": userType = value; break;
+                }
+            }
+        }
+        else
+        {
+            // Handle column format: | UserId | FirstName | LastName | UserType | Password |
+            var row = table.Rows[0];
+            userId = row.ContainsKey("UserId") ? row["UserId"] : row.ContainsKey("User ID") ? row["User ID"] : "";
+            password = row.ContainsKey("Password") ? row["Password"] : "";
+            firstName = row.ContainsKey("FirstName") ? row["FirstName"] : row.ContainsKey("First Name") ? row["First Name"] : "";
+            lastName = row.ContainsKey("LastName") ? row["LastName"] : row.ContainsKey("Last Name") ? row["Last Name"] : "";
+            userType = row.ContainsKey("UserType") ? row["UserType"] : row.ContainsKey("User Type") ? row["User Type"] : "USER";
+        }
+
         var user = new
         {
-            UserId = row["User ID"],
-            Password = row["Password"],
-            FirstName = row["First Name"],
-            LastName = row["Last Name"],
-            UserType = row["User Type"]
+            UserId = userId,
+            Password = password,
+            FirstName = firstName,
+            LastName = lastName,
+            UserType = userType
         };
 
         _userId = user.UserId;
@@ -80,7 +118,7 @@ public class AdminSteps
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _context.AuthToken);
         }
         
-        _response = await _context.Client.PostAsJsonAsync("/api/users", user);
+        SaveResponse(await _context.Client.PostAsJsonAsync("/api/users", user));
     }
 
     // ThenIShouldSeeASuccessMessage está en AccountSteps.cs (step común)
@@ -134,7 +172,7 @@ public class AdminSteps
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _context.AuthToken);
         }
         
-        _response = await _context.Client.PostAsJsonAsync("/api/users", user);
+        SaveResponse(await _context.Client.PostAsJsonAsync("/api/users", user));
     }
 
     // ThenIShouldSeeAnErrorMessage está en AuthenticationSteps.cs (step común)
@@ -165,7 +203,7 @@ public class AdminSteps
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _context.AuthToken);
         }
         
-        _response = await _context.Client.PostAsJsonAsync("/api/users", user);
+        SaveResponse(await _context.Client.PostAsJsonAsync("/api/users", user));
     }
 
     [When(@"I click on user ""(.*)""")]
@@ -177,7 +215,7 @@ public class AdminSteps
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _context.AuthToken);
         }
         
-        _response = await _context.Client.GetAsync($"/api/users/{userId}");
+        SaveResponse(await _context.Client.GetAsync($"/api/users/{userId}"));
     }
 
     [Then(@"I should see the user details page")]
@@ -292,7 +330,7 @@ public class AdminSteps
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _context.AuthToken);
         }
         
-        _response = await _context.Client.DeleteAsync($"/api/users/{userId}");
+        SaveResponse(await _context.Client.DeleteAsync($"/api/users/{userId}"));
     }
 
     [Given(@"user ""(.*)"" is active")]

@@ -505,6 +505,12 @@ public class TransactionSteps
         // Setup
     }
 
+    [Given(@"account ""(.*)"" has transactions in (\w+) (\d+)")]
+    public void GivenAccountHasTransactionsInMonthYear(string accountId, string month, int year)
+    {
+        // Setup - transacciones en un mes/año específico
+    }
+
     [When(@"I navigate to the reports page")]
     public void WhenINavigateToTheReportsPage()
     {

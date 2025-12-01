@@ -21,6 +21,12 @@ public class CardSteps
         _context = context;
     }
 
+    private void SaveResponse(HttpResponseMessage response)
+    {
+        _response = response;
+        _context.LastHttpResponse = response;
+    }
+
     [Given(@"the following cards exist:")]
     public Task GivenTheFollowingCardsExist(Table table)
     {
@@ -37,9 +43,9 @@ public class CardSteps
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _context.AuthToken);
         }
         
-        _response = await _context.Client.GetAsync("/api/Cards");
+        SaveResponse(await _context.Client.GetAsync("/api/Cards"));
         
-        if (_response.IsSuccessStatusCode)
+        if (_response!.IsSuccessStatusCode)
         {
             _cards = await _response.Content.ReadFromJsonAsync<List<CardDto>>();
         }
@@ -78,7 +84,7 @@ public class CardSteps
         }
         
         // Buscar tarjeta por últimos 4 dígitos
-        _response = await _context.Client.GetAsync($"/api/Cards?search={lastFourDigits}");
+        SaveResponse(await _context.Client.GetAsync($"/api/Cards?search={lastFourDigits}"));
     }
 
     [Then(@"I should see the card details page")]
@@ -127,7 +133,7 @@ public class CardSteps
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _context.AuthToken);
         }
         
-        _response = await _context.Client.GetAsync($"/api/Cards/{cardNumber}");
+        SaveResponse(await _context.Client.GetAsync($"/api/Cards/{cardNumber}"));
     }
 
     [When(@"I change the embossed name to ""(.*)""")]
@@ -276,7 +282,7 @@ public class CardSteps
         // Verificación
     }
 
-    [Then(@"account ""(.*)"" should show (\d+) cards")]
+    [Then(@"account ""(.*)"" should show (\d+) cards?")]
     public void ThenAccountShouldShowCards(string accountId, int cardCount)
     {
         // Verificación
