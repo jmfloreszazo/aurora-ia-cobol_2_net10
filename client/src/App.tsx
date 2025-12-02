@@ -25,6 +25,9 @@ import { ReportsPage } from '@/pages/reports';
 // Billing page
 import { BillPaymentPage } from '@/pages/billing';
 
+// Batch Jobs page (Admin)
+import { BatchJobsPage } from '@/pages/batch';
+
 // Create a client for React Query
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -189,6 +192,16 @@ function App() {
               element={
                 <ProtectedLayout>
                   <BillPaymentPage />
+                </ProtectedLayout>
+              }
+            />
+
+            {/* Batch Jobs routes (Admin) */}
+            <Route
+              path="/admin/batch-jobs"
+              element={
+                <ProtectedLayout>
+                  <BatchJobsPage />
                 </ProtectedLayout>
               }
             />

@@ -3,17 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { accountService, customerService } from '@/services/apiService';
 import { QUERY_KEYS } from '@/config/constants';
-import { DataTable, Pagination, PageHeader, StatusBadge, AmountDisplay, Button } from '@/components/ui';
+import { DataTable, PageHeader, StatusBadge, AmountDisplay, Button } from '@/components/ui';
 import type { Account, Customer } from '@/types';
 
 export const AccountListPage: React.FC = () => {
   const navigate = useNavigate();
   const [selectedCustomerId, setSelectedCustomerId] = useState<number | null>(null);
-  const [page, setPage] = useState(1);
-  const pageSize = 10;
 
   // Get customers for dropdown
-  const { data: customersData, isLoading: customersLoading } = useQuery({
+  const { data: customersData } = useQuery({
     queryKey: [QUERY_KEYS.CUSTOMERS],
     queryFn: () => customerService.getAllCustomers(1, 100),
   });

@@ -3,8 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { cardService, accountService, customerService } from '@/services/apiService';
 import { QUERY_KEYS } from '@/config/constants';
-import { DataTable, Pagination, PageHeader, StatusBadge, Button } from '@/components/ui';
-import type { Card, Customer, Account } from '@/types';
+import { DataTable, PageHeader, StatusBadge, Button } from '@/components/ui';
+import type { Card, Customer, Account, PagedResult } from '@/types';
 
 export const CardListPage: React.FC = () => {
   const navigate = useNavigate();
@@ -13,7 +13,7 @@ export const CardListPage: React.FC = () => {
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(
     searchParams.get('accountId') ? Number(searchParams.get('accountId')) : null
   );
-  const [page, setPage] = useState(1);
+  const page = 1;
 
   // Get customers
   const { data: customersData } = useQuery({
@@ -29,11 +29,13 @@ export const CardListPage: React.FC = () => {
   });
 
   // Get cards for selected account
-  const { data: cards, isLoading: cardsLoading } = useQuery({
+  const { data: cardsData, isLoading: cardsLoading } = useQuery<PagedResult<Card>>({
     queryKey: [QUERY_KEYS.CARDS, selectedAccountId],
     queryFn: () => cardService.getCardsByAccount(selectedAccountId!),
     enabled: !!selectedAccountId,
   });
+
+  const cards = cardsData?.items || [];
 
   const columns = [
     {
@@ -126,9 +128,9 @@ export const CardListPage: React.FC = () => {
         </div>
         
         {selectedAccountId ? (
-          <DataTable
+          <DataTable<Card>
             columns={columns}
-            data={cards || []}
+            data={cards}
             keyExtractor={(card) => card.cardNumber}
             isLoading={cardsLoading}
             emptyMessage="No cards found for this account."

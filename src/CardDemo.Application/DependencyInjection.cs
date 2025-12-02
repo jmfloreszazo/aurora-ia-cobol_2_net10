@@ -1,3 +1,4 @@
+using CardDemo.Application.Features.BatchJobs.Services;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
@@ -18,6 +19,12 @@ public static class DependencyInjection
 
         // Add AutoMapper
         services.AddAutoMapper(assembly);
+
+        // Add Batch Job Services (COBOL batch program equivalents)
+        services.AddScoped<TransactionPostingService>();      // CBTRN01C/CBTRN02C
+        services.AddScoped<InterestCalculationService>();     // CBACT02C
+        services.AddScoped<StatementGenerationService>();     // CBSTM03A/CBSTM03B
+        services.AddScoped<DataExportImportService>();        // CBEXPORT/CBIMPORT
 
         return services;
     }
