@@ -109,4 +109,118 @@ public class CardsControllerTests : IClassFixture<CustomWebApplicationFactory>
         cards.Should().NotBeNull();
         cards.Should().BeEmpty();
     }
+
+    #region GetCardByNumber Tests
+
+    [Fact]
+    public async Task GetCardByNumber_ShouldReturnCard_WhenExists()
+    {
+        // Arrange
+        var token = await GetAuthTokenAsync();
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        // First get all cards to find a valid card number
+        var allResponse = await _client.GetAsync("/api/Cards?pageNumber=1&pageSize=1");
+        var allCards = await allResponse.Content.ReadFromJsonAsync<PagedResult<CardDto>>();
+        
+        if (allCards?.Items?.Count > 0)
+        {
+            var cardNumber = allCards.Items[0].CardNumber;
+            
+            // Act
+            var response = await _client.GetAsync($"/api/Cards/{cardNumber}");
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            
+            var card = await response.Content.ReadFromJsonAsync<CardDto>();
+            card.Should().NotBeNull();
+            card!.CardNumber.Should().Be(cardNumber);
+        }
+    }
+
+    #endregion
+
+    #region UpdateCard Tests
+
+    [Fact]
+    public async Task UpdateCard_ShouldReturnUnauthorized_WhenNoToken()
+    {
+        // Arrange
+        var request = new { ActiveStatus = "Y" };
+
+        // Act
+        var response = await _client.PutAsJsonAsync("/api/Cards/1234567890123456", request);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task UpdateCard_ShouldReturnOk_WhenCardExists()
+    {
+        // Arrange
+        var token = await GetAuthTokenAsync();
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        // First get a valid card number
+        var allResponse = await _client.GetAsync("/api/Cards?pageNumber=1&pageSize=1");
+        var allCards = await allResponse.Content.ReadFromJsonAsync<PagedResult<CardDto>>();
+        
+        if (allCards?.Items?.Count > 0)
+        {
+            var cardNumber = allCards.Items[0].CardNumber;
+            var request = new { ActiveStatus = "Y" };
+
+            // Act
+            var response = await _client.PutAsJsonAsync($"/api/Cards/{cardNumber}", request);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+    }
+
+    [Fact]
+    public async Task UpdateCard_ShouldReturnNotFound_WhenCardDoesNotExist()
+    {
+        // Arrange
+        var token = await GetAuthTokenAsync();
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var request = new { ActiveStatus = "Y" };
+
+        // Act
+        var response = await _client.PutAsJsonAsync("/api/Cards/0000000000000000", request);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task UpdateCard_ShouldUpdateActiveStatus_WhenProvided()
+    {
+        // Arrange
+        var token = await GetAuthTokenAsync();
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        // First get a card
+        var allResponse = await _client.GetAsync("/api/Cards?pageNumber=1&pageSize=1");
+        var allCards = await allResponse.Content.ReadFromJsonAsync<PagedResult<CardDto>>();
+        
+        if (allCards?.Items?.Count > 0)
+        {
+            var cardNumber = allCards.Items[0].CardNumber;
+            var request = new { ActiveStatus = "Y" };
+
+            // Act
+            var response = await _client.PutAsJsonAsync($"/api/Cards/{cardNumber}", request);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var result = await response.Content.ReadFromJsonAsync<CardDto>();
+            result.Should().NotBeNull();
+            result!.ActiveStatus.Should().Be("Y");
+        }
+    }
+
+    #endregion
 }

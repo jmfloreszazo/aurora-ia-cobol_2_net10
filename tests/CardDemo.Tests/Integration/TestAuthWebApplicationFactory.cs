@@ -106,9 +106,9 @@ public class AdminTestAuthHandler : AuthenticationHandler<AuthenticationSchemeOp
         {
             new Claim(ClaimTypes.NameIdentifier, "ADMIN"),
             new Claim(ClaimTypes.Name, "Admin User"),
-            new Claim(ClaimTypes.Role, "Admin"),  // Matches controller's [Authorize(Roles = "Admin")]
+            new Claim(ClaimTypes.Role, "ADMIN"),  // Matches controller's [Authorize(Roles = "ADMIN")]
             new Claim("userId", "ADMIN"),
-            new Claim("role", "Admin")
+            new Claim("role", "ADMIN")
         };
 
         var identity = new ClaimsIdentity(claims, "TestScheme");

@@ -13,7 +13,7 @@ namespace CardDemo.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "ADMIN")]
 public class UsersController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -139,12 +139,24 @@ public class UsersController : ControllerBase
     /// </summary>
     [HttpDelete("{userId}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> DeleteUser(string userId)
     {
         try
         {
+            // Get the current user ID from claims
+            var currentUserId = User.FindFirst("userId")?.Value ?? 
+                                User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            
+            // Prevent users from deleting themselves
+            if (string.Equals(currentUserId, userId, StringComparison.OrdinalIgnoreCase))
+            {
+                _logger.LogWarning("User {UserId} attempted to delete themselves", userId);
+                return BadRequest(new { message = "Cannot delete currently logged in user" });
+            }
+
             _logger.LogInformation("Deleting user {UserId}", userId);
             
             var command = new DeleteUserCommand(userId);

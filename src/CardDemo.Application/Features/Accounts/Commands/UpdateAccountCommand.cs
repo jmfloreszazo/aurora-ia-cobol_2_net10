@@ -65,7 +65,7 @@ public class UpdateAccountCommandHandler : IRequestHandler<UpdateAccountCommand,
         {
             AccountId = account.AccountId,
             CustomerId = account.CustomerId,
-            CustomerName = account.Customer.FirstName + " " + account.Customer.LastName,
+            CustomerName = (account.Customer != null ? $"{account.Customer.FirstName} {account.Customer.LastName}" : string.Empty)!,
             ActiveStatus = account.ActiveStatus,
             CurrentBalance = account.CurrentBalance,
             CreditLimit = account.CreditLimit,

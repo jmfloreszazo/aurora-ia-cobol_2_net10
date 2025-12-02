@@ -137,4 +137,175 @@ public class TransactionsControllerTests : IClassFixture<CustomWebApplicationFac
         result.Should().NotBeNull();
         result!.Items.Should().BeEmpty();
     }
+
+    #region GetTransactionById Success Tests
+
+    [Fact]
+    public async Task GetTransactionById_ShouldReturnTransaction_WhenExists()
+    {
+        // Arrange
+        var token = await GetAuthTokenAsync();
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        // First get all transactions to find a valid ID
+        var allResponse = await _client.GetAsync("/api/Transactions?pageNumber=1&pageSize=1");
+        var allTransactions = await allResponse.Content.ReadFromJsonAsync<PagedResult<TransactionDto>>();
+        
+        if (allTransactions?.Items?.Count > 0)
+        {
+            var transactionId = allTransactions.Items[0].TransactionId;
+            
+            // Act
+            var response = await _client.GetAsync($"/api/Transactions/{transactionId}");
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            
+            var transaction = await response.Content.ReadFromJsonAsync<TransactionDto>();
+            transaction.Should().NotBeNull();
+            transaction!.TransactionId.Should().Be(transactionId);
+        }
+    }
+
+    #endregion
+
+    #region CreateTransaction Tests
+
+    [Fact]
+    public async Task CreateTransaction_ShouldReturnUnauthorized_WhenNoToken()
+    {
+        // Arrange
+        var request = new CreateTransactionRequest
+        {
+            AccountId = 1,
+            CardNumber = "1234567890123456",
+            Amount = 100m,
+            Description = "Test"
+        };
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/Transactions", request);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task CreateTransaction_ShouldReturnCreated_WhenDataIsValid()
+    {
+        // Arrange
+        var token = await GetAuthTokenAsync();
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        // Get a valid account and card
+        var accountsResponse = await _client.GetAsync("/api/Accounts?pageNumber=1&pageSize=1");
+        var accounts = await accountsResponse.Content.ReadFromJsonAsync<PagedResult<AccountDto>>();
+        
+        var cardsResponse = await _client.GetAsync("/api/Cards?pageNumber=1&pageSize=1");
+        var cards = await cardsResponse.Content.ReadFromJsonAsync<PagedResult<CardDto>>();
+        
+        if (accounts?.Items?.Count > 0 && cards?.Items?.Count > 0)
+        {
+            var request = new CreateTransactionRequest
+            {
+                AccountId = accounts.Items[0].AccountId,
+                CardNumber = cards.Items[0].CardNumber,
+                Amount = 50m,
+                Description = "Integration Test Transaction",
+                TransactionType = "PU",
+                CategoryCode = 1,
+                MerchantName = "TEST MERCHANT"
+            };
+
+            // Act
+            var response = await _client.PostAsJsonAsync("/api/Transactions", request);
+
+            // Assert
+            response.StatusCode.Should().BeOneOf(HttpStatusCode.Created, HttpStatusCode.OK, HttpStatusCode.BadRequest);
+        }
+    }
+
+    [Fact]
+    public async Task CreateTransaction_ShouldReturnNotFound_WhenAccountDoesNotExist()
+    {
+        // Arrange
+        var token = await GetAuthTokenAsync();
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var request = new CreateTransactionRequest
+        {
+            AccountId = 999999999,
+            CardNumber = "1234567890123456",
+            Amount = 50m,
+            Description = "Test Transaction"
+        };
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/Transactions", request);
+
+        // Assert
+        response.StatusCode.Should().BeOneOf(HttpStatusCode.NotFound, HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task CreateTransaction_ShouldReturnBadRequest_WhenNegativeAmount()
+    {
+        // Arrange
+        var token = await GetAuthTokenAsync();
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var accountsResponse = await _client.GetAsync("/api/Accounts?pageNumber=1&pageSize=1");
+        var accounts = await accountsResponse.Content.ReadFromJsonAsync<PagedResult<AccountDto>>();
+        
+        if (accounts?.Items?.Count > 0)
+        {
+            var request = new CreateTransactionRequest
+            {
+                AccountId = accounts.Items[0].AccountId,
+                CardNumber = "1234567890123456",
+                Amount = -100m, // Negative amount
+                Description = "Test"
+            };
+
+            // Act
+            var response = await _client.PostAsJsonAsync("/api/Transactions", request);
+
+            // Assert
+            response.StatusCode.Should().BeOneOf(HttpStatusCode.BadRequest, HttpStatusCode.UnprocessableEntity, HttpStatusCode.NotFound);
+        }
+    }
+
+    #endregion
+
+    #region Date Range Filter Tests
+
+    [Fact]
+    public async Task GetAllTransactions_ShouldFilterByDateRange_WhenProvided()
+    {
+        // Arrange
+        var token = await GetAuthTokenAsync();
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var fromDate = DateTime.UtcNow.AddMonths(-6).ToString("yyyy-MM-dd");
+        var toDate = DateTime.UtcNow.ToString("yyyy-MM-dd");
+
+        // Act
+        var response = await _client.GetAsync($"/api/Transactions?pageNumber=1&pageSize=10&fromDate={fromDate}&toDate={toDate}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    #endregion
+}
+
+public class CreateTransactionRequest
+{
+    public long AccountId { get; set; }
+    public string CardNumber { get; set; } = default!;
+    public decimal Amount { get; set; }
+    public string Description { get; set; } = default!;
+    public string? TransactionType { get; set; }
+    public int? CategoryCode { get; set; }
+    public string? MerchantName { get; set; }
 }

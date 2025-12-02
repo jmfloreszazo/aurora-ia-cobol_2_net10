@@ -22,7 +22,7 @@ public record AccountDto
     public int NumberOfCards { get; init; }
     public DateTime OpenDate { get; init; }
     public DateTime ExpirationDate { get; init; }
-    public string GroupId { get; init; } = default!;
+    public string? GroupId { get; init; }
     public bool IsActive => ActiveStatus == "Y";
 }
 
@@ -51,7 +51,7 @@ public class GetAllAccountsQueryHandler : IRequestHandler<GetAllAccountsQuery, P
             {
                 AccountId = a.AccountId,
                 CustomerId = a.CustomerId,
-                CustomerName = a.Customer.FirstName + " " + a.Customer.LastName,
+                CustomerName = (a.Customer != null ? $"{a.Customer.FirstName} {a.Customer.LastName}" : string.Empty)!,
                 ActiveStatus = a.ActiveStatus,
                 CurrentBalance = a.CurrentBalance,
                 CreditLimit = a.CreditLimit,

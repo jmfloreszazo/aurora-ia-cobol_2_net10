@@ -11,7 +11,7 @@ namespace CardDemo.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "ADMIN")]
 public class BatchJobsController : ControllerBase
 {
     private readonly TransactionPostingService _transactionPostingService;

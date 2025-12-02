@@ -128,4 +128,115 @@ public class AccountsControllerTests : IClassFixture<CustomWebApplicationFactory
         accounts.Should().NotBeNull();
         accounts.Should().BeEmpty();
     }
+
+    #region UpdateAccount Tests
+
+    [Fact]
+    public async Task UpdateAccount_ShouldReturnUnauthorized_WhenNoToken()
+    {
+        // Arrange
+        var request = new { ActiveStatus = "Y" };
+
+        // Act
+        var response = await _client.PutAsJsonAsync("/api/Accounts/1", request);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task UpdateAccount_ShouldReturnOk_WhenAccountExists()
+    {
+        // Arrange
+        var token = await GetAuthTokenAsync();
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        // First get all accounts to find a valid ID
+        var allResponse = await _client.GetAsync("/api/Accounts?pageNumber=1&pageSize=1");
+        var allAccounts = await allResponse.Content.ReadFromJsonAsync<PagedResult<AccountDto>>();
+        
+        if (allAccounts?.Items?.Count > 0)
+        {
+            var accountId = allAccounts.Items[0].AccountId;
+            var request = new { CreditLimit = 10000m };
+
+            // Act
+            var response = await _client.PutAsJsonAsync($"/api/Accounts/{accountId}", request);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+    }
+
+    [Fact]
+    public async Task UpdateAccount_ShouldReturnNotFound_WhenAccountDoesNotExist()
+    {
+        // Arrange
+        var token = await GetAuthTokenAsync();
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var request = new { ActiveStatus = "Y" };
+
+        // Act
+        var response = await _client.PutAsJsonAsync("/api/Accounts/999999999", request);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task UpdateAccount_ShouldUpdateCreditLimit_WhenProvided()
+    {
+        // Arrange
+        var token = await GetAuthTokenAsync();
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        // First get an account
+        var allResponse = await _client.GetAsync("/api/Accounts?pageNumber=1&pageSize=1");
+        var allAccounts = await allResponse.Content.ReadFromJsonAsync<PagedResult<AccountDto>>();
+        
+        if (allAccounts?.Items?.Count > 0)
+        {
+            var accountId = allAccounts.Items[0].AccountId;
+            var newCreditLimit = 15000m;
+            var request = new { CreditLimit = newCreditLimit };
+
+            // Act
+            var response = await _client.PutAsJsonAsync($"/api/Accounts/{accountId}", request);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var result = await response.Content.ReadFromJsonAsync<AccountDto>();
+            result.Should().NotBeNull();
+            result!.CreditLimit.Should().Be(newCreditLimit);
+        }
+    }
+
+    [Fact]
+    public async Task UpdateAccount_ShouldUpdateActiveStatus_WhenProvided()
+    {
+        // Arrange
+        var token = await GetAuthTokenAsync();
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        // First get an account
+        var allResponse = await _client.GetAsync("/api/Accounts?pageNumber=1&pageSize=1");
+        var allAccounts = await allResponse.Content.ReadFromJsonAsync<PagedResult<AccountDto>>();
+        
+        if (allAccounts?.Items?.Count > 0)
+        {
+            var accountId = allAccounts.Items[0].AccountId;
+            var request = new { ActiveStatus = "Y" };
+
+            // Act
+            var response = await _client.PutAsJsonAsync($"/api/Accounts/{accountId}", request);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var result = await response.Content.ReadFromJsonAsync<AccountDto>();
+            result.Should().NotBeNull();
+            result!.ActiveStatus.Should().Be("Y");
+        }
+    }
+
+    #endregion
 }
