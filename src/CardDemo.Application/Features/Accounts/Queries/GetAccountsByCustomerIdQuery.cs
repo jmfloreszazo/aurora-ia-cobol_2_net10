@@ -31,13 +31,9 @@ public class GetAccountsByCustomerIdQueryHandler : IRequestHandler<GetAccountsBy
                 CurrentBalance = a.CurrentBalance,
                 CreditLimit = a.CreditLimit,
                 CashCreditLimit = a.CashCreditLimit,
-                AvailableCredit = a.CreditLimit - a.CurrentBalance,
-                CreditUtilization = a.CreditLimit > 0 ? (a.CurrentBalance / a.CreditLimit) * 100 : 0,
                 OpenDate = a.OpenDate,
                 ExpirationDate = a.ExpirationDate,
-                CurrentCycleCredit = a.CurrentCycleCredit,
-                CurrentCycleDebit = a.CurrentCycleDebit,
-                NumberOfCards = a.Cards.Count
+                GroupId = a.GroupId ?? string.Empty
             })
             .ToListAsync(cancellationToken);
 

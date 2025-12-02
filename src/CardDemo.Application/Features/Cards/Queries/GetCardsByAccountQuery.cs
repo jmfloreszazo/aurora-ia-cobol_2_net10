@@ -29,8 +29,7 @@ public class GetCardsByAccountQueryHandler : IRequestHandler<GetCardsByAccountQu
                 CardType = c.CardType,
                 EmbossedName = c.EmbossedName,
                 ExpirationDate = c.ExpirationDate,
-                ActiveStatus = c.ActiveStatus,
-                IsActive = c.ActiveStatus == "Y"
+                ActiveStatus = c.ActiveStatus
             })
             .ToListAsync(cancellationToken);
 

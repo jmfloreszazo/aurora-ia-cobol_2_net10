@@ -1,3 +1,4 @@
+using CardDemo.Application.Features.Accounts.Commands;
 using CardDemo.Application.Features.Accounts.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -5,6 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CardDemo.Api.Controllers;
 
+/// <summary>
+/// Controller for account operations (equivalent to COACTVWC and COACTUPC COBOL programs)
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
@@ -20,7 +24,22 @@ public class AccountsController : ControllerBase
     }
 
     /// <summary>
-    /// Get account details by ID
+    /// Get all accounts with pagination (equivalent to account list functionality)
+    /// </summary>
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAllAccounts(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 20)
+    {
+        var query = new GetAllAccountsQuery(pageNumber, pageSize);
+        var response = await _mediator.Send(query);
+        
+        return Ok(response);
+    }
+
+    /// <summary>
+    /// Get account details by ID (equivalent to COACTVWC - Account View)
     /// </summary>
     [HttpGet("{accountId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -55,13 +74,45 @@ public class AccountsController : ControllerBase
     }
 
     /// <summary>
-    /// Get all accounts (for testing purposes)
+    /// Update account (equivalent to COACTUPC - Account Update)
     /// </summary>
-    [HttpGet]
+    [HttpPut("{accountId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAllAccounts()
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateAccount(long accountId, [FromBody] UpdateAccountRequest request)
     {
-        // Retornar lista vacía por ahora - en producción consultaría la base de datos
-        return Ok(new List<object>());
+        try
+        {
+            _logger.LogInformation("Updating account {AccountId}", accountId);
+            
+            var command = new UpdateAccountCommand(
+                accountId,
+                request.ActiveStatus,
+                request.CreditLimit,
+                request.CashCreditLimit,
+                request.ExpirationDate,
+                request.GroupId
+            );
+            
+            var result = await _mediator.Send(command);
+            
+            _logger.LogInformation("Account {AccountId} updated successfully", accountId);
+            
+            return Ok(result);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            _logger.LogWarning("Account not found: {Message}", ex.Message);
+            return NotFound(new { message = ex.Message });
+        }
     }
+}
+
+public record UpdateAccountRequest
+{
+    public string? ActiveStatus { get; init; }
+    public decimal? CreditLimit { get; init; }
+    public decimal? CashCreditLimit { get; init; }
+    public DateTime? ExpirationDate { get; init; }
+    public string? GroupId { get; init; }
 }
