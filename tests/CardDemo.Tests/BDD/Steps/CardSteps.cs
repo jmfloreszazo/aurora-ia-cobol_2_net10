@@ -14,7 +14,6 @@ public class CardSteps
     private readonly TestContext _context;
     private HttpResponseMessage? _response;
     private List<CardDto>? _cards;
-    private CardDto? _selectedCard;
 
     public CardSteps(TestContext context)
     {

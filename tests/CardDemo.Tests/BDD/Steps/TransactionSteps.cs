@@ -14,7 +14,6 @@ public class TransactionSteps
     private readonly TestContext _context;
     private HttpResponseMessage? _response;
     private List<TransactionDto>? _transactions;
-    private TransactionDto? _selectedTransaction;
 
     public TransactionSteps(TestContext context)
     {
