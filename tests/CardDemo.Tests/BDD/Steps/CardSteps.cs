@@ -46,7 +46,8 @@ public class CardSteps
         
         if (_response!.IsSuccessStatusCode)
         {
-            _cards = await _response.Content.ReadFromJsonAsync<List<CardDto>>();
+            var pagedResult = await _response.Content.ReadFromJsonAsync<PagedResult<CardDto>>();
+            _cards = pagedResult?.Items;
         }
     }
 
