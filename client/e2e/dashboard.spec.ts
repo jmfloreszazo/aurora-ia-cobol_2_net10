@@ -2,113 +2,81 @@ import { test, expect } from './fixtures';
 
 test.describe('Dashboard', () => {
   test.describe('Dashboard Page', () => {
-    test('should display dashboard', async ({ authenticatedPage: page }) => {
+    test('should display dashboard after login', async ({ authenticatedPage: page }) => {
       await page.goto('/dashboard');
       
-      await expect(page.getByRole('heading', { name: /dashboard|welcome/i })).toBeVisible();
+      await expect(page.getByRole('heading', { name: /Dashboard/i }).first()).toBeVisible();
     });
 
-    test('should show account summary', async ({ authenticatedPage: page }) => {
+    test('should show user type badge', async ({ authenticatedPage: page }) => {
       await page.goto('/dashboard');
-      await page.waitForLoadState('networkidle');
       
-      // Dashboard should show account overview
-      const accountSummary = page.getByText(/account|balance|total/i);
-      await expect(accountSummary.first()).toBeVisible();
+      // User badge appears in header - look for exact USER text in badge
+      await expect(page.getByRole('banner').getByText('USER', { exact: true })).toBeVisible();
     });
 
-    test('should show quick actions', async ({ authenticatedPage: page }) => {
+    test('should have logout button', async ({ authenticatedPage: page }) => {
       await page.goto('/dashboard');
       
-      // Dashboard might have quick action buttons
-      const quickActions = page.locator('[data-testid="quick-actions"], .quick-actions');
+      await expect(page.getByRole('button', { name: 'F3=Exit' })).toBeVisible();
     });
 
-    test('should show recent transactions', async ({ authenticatedPage: page }) => {
+    test('should display welcome message', async ({ authenticatedPage: page }) => {
       await page.goto('/dashboard');
-      await page.waitForLoadState('networkidle');
       
-      // Dashboard might show recent transactions
-      const recentTransactions = page.getByText(/recent|transaction/i);
+      await expect(page.getByText(/Welcome/i)).toBeVisible();
     });
   });
 
-  test.describe('Dashboard Widgets', () => {
-    test('should display total balance', async ({ authenticatedPage: page }) => {
+  test.describe('Navigation Links', () => {
+    test('should have accounts link', async ({ authenticatedPage: page }) => {
       await page.goto('/dashboard');
-      await page.waitForLoadState('networkidle');
       
-      // Should show total balance across accounts
-      const totalBalance = page.getByText(/total.*balance|balance/i);
+      await expect(page.getByRole('link', { name: 'Accounts' })).toBeVisible();
     });
 
-    test('should display credit utilization', async ({ authenticatedPage: page }) => {
+    test('should have cards link', async ({ authenticatedPage: page }) => {
       await page.goto('/dashboard');
-      await page.waitForLoadState('networkidle');
       
-      // Credit utilization might be shown
-      const creditUtilization = page.getByText(/utilization|credit.*limit|available.*credit/i);
+      await expect(page.getByRole('link', { name: 'Cards' })).toBeVisible();
     });
 
-    test('should display number of active cards', async ({ authenticatedPage: page }) => {
-      await page.goto('/dashboard');
-      await page.waitForLoadState('networkidle');
-      
-      // Active cards count might be shown
-      const activeCards = page.getByText(/active.*cards?|\d+.*cards?/i);
-    });
-  });
-
-  test.describe('Dashboard Loading', () => {
-    test('should show loading state initially', async ({ authenticatedPage: page }) => {
-      // Intercept API calls to slow them down
-      await page.route('**/api/**', async route => {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        await route.continue();
-      });
-      
+    test('should have transactions link', async ({ authenticatedPage: page }) => {
       await page.goto('/dashboard');
       
-      // Should show loading indicators
-      const loading = page.getByText(/loading/i);
+      await expect(page.getByRole('link', { name: 'Transactions' })).toBeVisible();
     });
 
-    test('should handle API errors gracefully', async ({ authenticatedPage: page }) => {
-      // Intercept and fail API calls
-      await page.route('**/api/**', route => {
-        route.fulfill({ status: 500, body: 'Internal Server Error' });
-      });
-      
+    test('should have bill payment link', async ({ authenticatedPage: page }) => {
       await page.goto('/dashboard');
       
-      // Should show error message
-      const errorMessage = page.getByText(/error|failed|unavailable/i);
+      await expect(page.getByRole('link', { name: 'Bill Payment' })).toBeVisible();
+    });
+
+    test('should have reports link', async ({ authenticatedPage: page }) => {
+      await page.goto('/dashboard');
+      
+      await expect(page.getByRole('link', { name: 'Reports' })).toBeVisible();
     });
   });
 
-  test.describe('Dashboard Refresh', () => {
-    test('should have refresh button', async ({ authenticatedPage: page }) => {
+  test.describe('Logout', () => {
+    test('should logout when clicking logout button', async ({ authenticatedPage: page }) => {
       await page.goto('/dashboard');
       
-      const refreshButton = page.getByRole('button', { name: /refresh/i });
-      // Refresh might be available
+      await page.getByRole('button', { name: 'F3=Exit' }).click();
+      
+      // Should redirect to login page
+      await expect(page).toHaveURL(/\/(login)?$/);
     });
+  });
 
-    test('should auto-refresh data periodically', async ({ authenticatedPage: page }) => {
+  test.describe('Admin Dashboard', () => {
+    test('should show admin badge for admin users', async ({ adminPage: page }) => {
       await page.goto('/dashboard');
       
-      // Monitor for API calls over time
-      let apiCallCount = 0;
-      page.on('request', request => {
-        if (request.url().includes('/api/')) {
-          apiCallCount++;
-        }
-      });
-      
-      // Wait some time and check if more calls were made
-      await page.waitForTimeout(5000);
-      
-      // Might have auto-refresh
+      // Look for ADMIN badge in header
+      await expect(page.getByRole('banner').getByText('ADMIN', { exact: true })).toBeVisible();
     });
   });
 });

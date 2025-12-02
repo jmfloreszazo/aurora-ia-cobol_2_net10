@@ -2,130 +2,68 @@ import { test, expect } from './fixtures';
 
 test.describe('Accounts', () => {
   test.describe('Account List', () => {
-    test('should display accounts list', async ({ authenticatedPage: page }) => {
+    test('should display accounts page', async ({ authenticatedPage: page }) => {
       await page.goto('/accounts');
       
-      await expect(page.getByRole('heading', { name: /accounts/i })).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Account List' })).toBeVisible();
     });
 
-    test('should show account table with columns', async ({ authenticatedPage: page }) => {
+    test('should show customer selector', async ({ authenticatedPage: page }) => {
       await page.goto('/accounts');
       
-      // Wait for the table to load
-      await page.waitForLoadState('networkidle');
-      
-      // Check for table headers
-      await expect(page.getByRole('columnheader', { name: /account/i })).toBeVisible();
-      await expect(page.getByRole('columnheader', { name: /balance|status/i })).toBeVisible();
+      await expect(page.getByText('Select Customer:')).toBeVisible();
+      await expect(page.locator('select').first()).toBeVisible();
     });
 
-    test('should navigate to account details when clicking on account', async ({ authenticatedPage: page }) => {
+    test('should show accounts table header', async ({ authenticatedPage: page }) => {
       await page.goto('/accounts');
-      await page.waitForLoadState('networkidle');
       
-      // Click on first account link/row
-      const accountLink = page.getByRole('link', { name: /view|details/i }).first();
-      if (await accountLink.isVisible()) {
-        await accountLink.click();
-        await expect(page).toHaveURL(/\/accounts\/\d+/);
-      }
+      await expect(page.locator('.bg-gray-800').getByText('Accounts')).toBeVisible();
     });
 
-    test('should have pagination if many accounts', async ({ authenticatedPage: page }) => {
+    test('should show message when no customer selected', async ({ authenticatedPage: page }) => {
       await page.goto('/accounts');
-      await page.waitForLoadState('networkidle');
       
-      // Pagination might not be visible with few accounts
-      const pagination = page.locator('[aria-label="pagination"], .pagination, nav[role="navigation"]');
-      // This is conditional - only check if pagination exists
+      await expect(page.getByText('Please select a customer to view their accounts.')).toBeVisible();
     });
   });
 
-  test.describe('Account View', () => {
-    test('should display account details', async ({ authenticatedPage: page }) => {
+  test.describe('Customer Selection', () => {
+    test('should have customer options in dropdown', async ({ authenticatedPage: page }) => {
       await page.goto('/accounts');
       await page.waitForLoadState('networkidle');
       
-      // Navigate to first account
-      const viewLink = page.getByRole('link', { name: /view|details/i }).first();
-      if (await viewLink.isVisible()) {
-        await viewLink.click();
-        
-        await expect(page.getByText(/account id|account number/i)).toBeVisible();
-        await expect(page.getByText(/balance/i)).toBeVisible();
-        await expect(page.getByText(/credit limit/i)).toBeVisible();
-      }
+      const customerSelect = page.locator('select').first();
+      await expect(customerSelect).toBeVisible();
+      
+      // Should have placeholder option
+      await expect(page.locator('option', { hasText: /Select a Customer/i })).toBeVisible();
     });
 
-    test('should show edit button on account view', async ({ authenticatedPage: page }) => {
+    test('should allow customer selection', async ({ authenticatedPage: page }) => {
       await page.goto('/accounts');
       await page.waitForLoadState('networkidle');
       
-      const viewLink = page.getByRole('link', { name: /view|details/i }).first();
-      if (await viewLink.isVisible()) {
-        await viewLink.click();
-        
-        await expect(page.getByRole('link', { name: /edit/i })).toBeVisible();
-      }
-    });
-
-    test('should navigate back to list', async ({ authenticatedPage: page }) => {
-      await page.goto('/accounts');
-      await page.waitForLoadState('networkidle');
+      const customerSelect = page.locator('select').first();
       
-      const viewLink = page.getByRole('link', { name: /view|details/i }).first();
-      if (await viewLink.isVisible()) {
-        await viewLink.click();
-        
-        const backLink = page.getByRole('link', { name: /back|list/i });
-        if (await backLink.isVisible()) {
-          await backLink.click();
-          await expect(page).toHaveURL('/accounts');
-        }
+      // Try to select first customer
+      const options = await customerSelect.locator('option').count();
+      if (options > 1) {
+        await customerSelect.selectOption({ index: 1 });
+        // After selection, message should change or table should appear
+        await page.waitForTimeout(500);
       }
     });
   });
 
-  test.describe('Account Edit', () => {
-    test('should display edit form', async ({ authenticatedPage: page }) => {
-      await page.goto('/accounts');
-      await page.waitForLoadState('networkidle');
+  test.describe('Navigation', () => {
+    test('should navigate to accounts from sidebar', async ({ authenticatedPage: page }) => {
+      await page.goto('/dashboard');
       
-      const viewLink = page.getByRole('link', { name: /view|details/i }).first();
-      if (await viewLink.isVisible()) {
-        await viewLink.click();
-        await page.getByRole('link', { name: /edit/i }).click();
-        
-        await expect(page.getByRole('heading', { name: /edit account/i })).toBeVisible();
-      }
-    });
-
-    test('should have form fields', async ({ authenticatedPage: page }) => {
-      await page.goto('/accounts');
-      await page.waitForLoadState('networkidle');
+      await page.getByRole('link', { name: 'Accounts' }).click();
       
-      const viewLink = page.getByRole('link', { name: /view|details/i }).first();
-      if (await viewLink.isVisible()) {
-        await viewLink.click();
-        await page.getByRole('link', { name: /edit/i }).click();
-        
-        // Check for form fields
-        await expect(page.getByLabel(/credit limit/i)).toBeVisible();
-      }
-    });
-
-    test('should show save and cancel buttons', async ({ authenticatedPage: page }) => {
-      await page.goto('/accounts');
-      await page.waitForLoadState('networkidle');
-      
-      const viewLink = page.getByRole('link', { name: /view|details/i }).first();
-      if (await viewLink.isVisible()) {
-        await viewLink.click();
-        await page.getByRole('link', { name: /edit/i }).click();
-        
-        await expect(page.getByRole('button', { name: /save|update/i })).toBeVisible();
-        await expect(page.getByRole('button', { name: /cancel/i })).toBeVisible();
-      }
+      await expect(page).toHaveURL('/accounts');
+      await expect(page.getByRole('heading', { name: 'Account List' })).toBeVisible();
     });
   });
 });

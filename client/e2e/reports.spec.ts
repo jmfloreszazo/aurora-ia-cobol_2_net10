@@ -5,124 +5,113 @@ test.describe('Reports', () => {
     test('should display reports page', async ({ authenticatedPage: page }) => {
       await page.goto('/reports');
       
-      await expect(page.getByRole('heading', { name: 'Transaction Reports' })).toBeVisible();
+      await expect(page.getByRole('heading', { name: /Transaction Reports/i }).first()).toBeVisible();
     });
 
     test('should have report type options', async ({ authenticatedPage: page }) => {
       await page.goto('/reports');
       
-      // Check for report type options
-      const monthlyReport = page.getByText(/monthly/i);
-      const yearlyReport = page.getByText(/yearly|annual/i);
-      
-      // At least one should be visible
-      expect(await monthlyReport.isVisible() || await yearlyReport.isVisible()).toBeTruthy();
+      await expect(page.getByText('Monthly Report')).toBeVisible();
+      await expect(page.getByText('Yearly Report')).toBeVisible();
+      await expect(page.getByText('Custom Date Range')).toBeVisible();
     });
 
-    test('should have date range selector', async ({ authenticatedPage: page }) => {
+    test('should have output options', async ({ authenticatedPage: page }) => {
       await page.goto('/reports');
       
-      // Look for date inputs
-      const fromDate = page.getByLabel(/from|start/i);
-      const toDate = page.getByLabel(/to|end/i);
-      
-      // Date range might be available
-    });
-
-    test('should have account selector', async ({ authenticatedPage: page }) => {
-      await page.goto('/reports');
-      
-      const accountSelector = page.getByLabel(/account/i);
-      if (await accountSelector.isVisible()) {
-        await expect(accountSelector).toBeVisible();
-      }
+      await expect(page.getByText('Display on Screen')).toBeVisible();
+      await expect(page.getByText('Print Report')).toBeVisible();
     });
 
     test('should have generate report button', async ({ authenticatedPage: page }) => {
       await page.goto('/reports');
       
-      await expect(page.getByRole('button', { name: /generate|create|run/i })).toBeVisible();
+      await expect(page.getByRole('button', { name: /Generate Report/i })).toBeVisible();
     });
 
-    test('should have export options', async ({ authenticatedPage: page }) => {
+    test('should have exit button', async ({ authenticatedPage: page }) => {
       await page.goto('/reports');
       
-      // Look for export buttons
-      const pdfExport = page.getByRole('button', { name: /pdf/i });
-      const excelExport = page.getByRole('button', { name: /excel|xlsx/i });
-      const csvExport = page.getByRole('button', { name: /csv/i });
+      await expect(page.getByRole('main').getByRole('button', { name: 'F3=Exit' })).toBeVisible();
+    });
+
+    test('should have clear button', async ({ authenticatedPage: page }) => {
+      await page.goto('/reports');
       
-      // At least one export option should be available
+      await expect(page.getByRole('button', { name: 'F4=Clear' })).toBeVisible();
+    });
+  });
+
+  test.describe('Report Type Selection', () => {
+    test('should show month selector for monthly report', async ({ authenticatedPage: page }) => {
+      await page.goto('/reports');
+      
+      // Monthly report is default
+      await expect(page.getByText('Month', { exact: true })).toBeVisible();
+    });
+
+    test('should show year selector for yearly report', async ({ authenticatedPage: page }) => {
+      await page.goto('/reports');
+      
+      await page.getByText('Yearly Report').click();
+      
+      await expect(page.getByText('Year', { exact: true })).toBeVisible();
+    });
+
+    test('should show date range for custom report', async ({ authenticatedPage: page }) => {
+      await page.goto('/reports');
+      
+      await page.getByText('Custom Date Range').click();
+      
+      await expect(page.getByText('Start Date')).toBeVisible();
+      await expect(page.getByText('End Date')).toBeVisible();
     });
   });
 
   test.describe('Report Generation', () => {
-    test('should show loading state when generating report', async ({ authenticatedPage: page }) => {
+    test('should generate and display report', async ({ authenticatedPage: page }) => {
       await page.goto('/reports');
       
-      // Fill in required fields if any
-      const accountSelector = page.getByLabel(/account/i);
-      if (await accountSelector.isVisible()) {
-        await accountSelector.selectOption({ index: 0 });
-      }
+      await page.getByRole('button', { name: /Generate Report/i }).click();
       
-      // Click generate
-      await page.getByRole('button', { name: /generate|create|run/i }).click();
-      
-      // Should show loading indicator
-      const loading = page.getByText(/loading|generating/i);
-      // Loading state might be quick
+      // Should show summary section
+      await expect(page.getByText('Total Transactions')).toBeVisible();
     });
 
-    test('should display report results', async ({ authenticatedPage: page }) => {
+    test('should show report table after generation', async ({ authenticatedPage: page }) => {
       await page.goto('/reports');
-      await page.waitForLoadState('networkidle');
       
-      // Select account if required
-      const accountSelector = page.getByLabel(/account/i);
-      if (await accountSelector.isVisible()) {
-        await accountSelector.selectOption({ index: 0 });
-      }
+      await page.getByRole('button', { name: /Generate Report/i }).click();
       
-      // Generate report
-      await page.getByRole('button', { name: /generate|create|run/i }).click();
-      await page.waitForLoadState('networkidle');
+      // Should show table with month column
+      await expect(page.getByRole('columnheader', { name: 'Month' })).toBeVisible();
+    });
+
+    test('should show export options after generation', async ({ authenticatedPage: page }) => {
+      await page.goto('/reports');
       
-      // Should show results section
-      const results = page.getByText(/result|summary|total/i);
-      // Results should appear after generation
+      await page.getByRole('button', { name: /Generate Report/i }).click();
+      
+      await expect(page.getByRole('button', { name: 'Export CSV' })).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Export PDF' })).toBeVisible();
     });
   });
 
-  test.describe('Monthly Report', () => {
-    test('should show month selector', async ({ authenticatedPage: page }) => {
-      await page.goto('/reports');
+  test.describe('Navigation', () => {
+    test('should navigate to reports from sidebar', async ({ authenticatedPage: page }) => {
+      await page.goto('/dashboard');
       
-      const monthlyOption = page.getByText(/monthly/i);
-      if (await monthlyOption.isVisible()) {
-        await monthlyOption.click();
-        
-        const monthSelector = page.getByLabel(/month/i);
-        if (await monthSelector.isVisible()) {
-          await expect(monthSelector).toBeVisible();
-        }
-      }
+      await page.getByRole('link', { name: 'Reports' }).click();
+      
+      await expect(page).toHaveURL('/reports');
     });
-  });
 
-  test.describe('Yearly Report', () => {
-    test('should show year selector', async ({ authenticatedPage: page }) => {
+    test('should exit to dashboard', async ({ authenticatedPage: page }) => {
       await page.goto('/reports');
       
-      const yearlyOption = page.getByText(/yearly|annual/i);
-      if (await yearlyOption.isVisible()) {
-        await yearlyOption.click();
-        
-        const yearSelector = page.getByLabel(/year/i);
-        if (await yearSelector.isVisible()) {
-          await expect(yearSelector).toBeVisible();
-        }
-      }
+      await page.getByRole('main').getByRole('button', { name: 'F3=Exit' }).click();
+      
+      await expect(page).toHaveURL('/dashboard');
     });
   });
 });

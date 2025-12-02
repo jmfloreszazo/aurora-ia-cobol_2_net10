@@ -95,7 +95,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  const isAdmin = user?.userType === 'Admin';
+  const isAdmin = user?.userType?.toUpperCase() === 'ADMIN';
   const filteredNavItems = navItems.filter(item => !item.adminOnly || isAdmin);
 
   const currentDate = new Date().toLocaleDateString('en-US', {

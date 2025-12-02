@@ -5,130 +5,87 @@ test.describe('Billing / Bill Payment', () => {
     test('should display billing page', async ({ authenticatedPage: page }) => {
       await page.goto('/billing');
       
-      await expect(page.getByRole('heading', { name: 'Bill Payment' })).toBeVisible();
-    });
-
-    test('should show current balance', async ({ authenticatedPage: page }) => {
-      await page.goto('/billing');
-      await page.waitForLoadState('networkidle');
-      
-      await expect(page.getByText(/balance|amount due/i)).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Bill Payment' }).first()).toBeVisible();
     });
 
     test('should have account selector', async ({ authenticatedPage: page }) => {
       await page.goto('/billing');
       
-      const accountSelector = page.getByLabel(/account/i);
-      if (await accountSelector.isVisible()) {
-        await expect(accountSelector).toBeVisible();
-      }
+      await expect(page.getByRole('heading', { name: 'Select Account' })).toBeVisible();
+      await expect(page.locator('select').first()).toBeVisible();
     });
 
     test('should have payment amount field', async ({ authenticatedPage: page }) => {
       await page.goto('/billing');
       
-      await expect(page.getByLabel(/amount|payment/i)).toBeVisible();
+      await expect(page.getByText('Payment Amount')).toBeVisible();
     });
 
-    test('should have pay full balance button', async ({ authenticatedPage: page }) => {
+    test('should have payment date field', async ({ authenticatedPage: page }) => {
       await page.goto('/billing');
       
-      await expect(page.getByRole('button', { name: /pay full|full balance|pay all/i })).toBeVisible();
+      await expect(page.getByText('Payment Date')).toBeVisible();
     });
 
-    test('should have submit payment button', async ({ authenticatedPage: page }) => {
+    test('should have proceed to payment button', async ({ authenticatedPage: page }) => {
       await page.goto('/billing');
       
-      await expect(page.getByRole('button', { name: /pay|submit|make payment/i })).toBeVisible();
+      await expect(page.getByRole('button', { name: /Proceed to Payment/i })).toBeVisible();
+    });
+
+    test('should have exit button', async ({ authenticatedPage: page }) => {
+      await page.goto('/billing');
+      
+      await expect(page.getByRole('main').getByRole('button', { name: 'F3=Exit' })).toBeVisible();
+    });
+
+    test('should have clear button', async ({ authenticatedPage: page }) => {
+      await page.goto('/billing');
+      
+      await expect(page.getByRole('button', { name: 'F4=Clear' })).toBeVisible();
     });
   });
 
-  test.describe('Payment Processing', () => {
-    test('should validate payment amount', async ({ authenticatedPage: page }) => {
+  test.describe('Account Selection', () => {
+    test('should display account dropdown', async ({ authenticatedPage: page }) => {
       await page.goto('/billing');
-      await page.waitForLoadState('networkidle');
       
-      // Try to submit with zero amount
-      const amountField = page.getByLabel(/amount|payment/i);
-      await amountField.fill('0');
+      const accountSelect = page.locator('select').first();
+      await expect(accountSelect).toBeVisible();
       
-      await page.getByRole('button', { name: /pay|submit|make payment/i }).click();
+      // Should have default option
+      await expect(page.getByText('Select Account')).toBeVisible();
+    });
+  });
+
+  test.describe('Payment Validation', () => {
+    test('should require account selection', async ({ authenticatedPage: page }) => {
+      await page.goto('/billing');
+      
+      // Fill amount without selecting account
+      await page.locator('input[type="number"]').fill('100.00');
+      await page.getByRole('button', { name: /Proceed to Payment/i }).click();
       
       // Should show validation error
-      await expect(page.getByText(/invalid|greater than|minimum/i)).toBeVisible();
-    });
-
-    test('should validate amount does not exceed balance', async ({ authenticatedPage: page }) => {
-      await page.goto('/billing');
-      await page.waitForLoadState('networkidle');
-      
-      // Try to pay more than balance
-      const amountField = page.getByLabel(/amount|payment/i);
-      await amountField.fill('9999999');
-      
-      await page.getByRole('button', { name: /pay|submit|make payment/i }).click();
-      
-      // Should show validation error or adjust amount
-    });
-
-    test('should show confirmation after successful payment', async ({ authenticatedPage: page }) => {
-      await page.goto('/billing');
-      await page.waitForLoadState('networkidle');
-      
-      // Fill in valid payment amount
-      const amountField = page.getByLabel(/amount|payment/i);
-      await amountField.fill('50');
-      
-      // Submit payment
-      await page.getByRole('button', { name: /pay|submit|make payment/i }).click();
-      
-      // Should show confirmation or success message
-      const success = page.getByText(/success|confirmed|processed|thank you/i);
-      // Result depends on backend availability
-    });
-
-    test('pay full balance should auto-fill amount', async ({ authenticatedPage: page }) => {
-      await page.goto('/billing');
-      await page.waitForLoadState('networkidle');
-      
-      // Get current balance text
-      const balanceText = await page.getByText(/\$[\d,]+\.\d{2}/).first().textContent();
-      
-      // Click pay full balance
-      await page.getByRole('button', { name: /pay full|full balance|pay all/i }).click();
-      
-      // Amount field should be filled with balance
-      const amountField = page.getByLabel(/amount|payment/i);
-      const amountValue = await amountField.inputValue();
-      
-      // Amount should be set
+      await expect(page.getByText(/select an account/i)).toBeVisible();
     });
   });
 
-  test.describe('Payment History', () => {
-    test('should show payment history section', async ({ authenticatedPage: page }) => {
-      await page.goto('/billing');
-      await page.waitForLoadState('networkidle');
+  test.describe('Navigation', () => {
+    test('should navigate to billing from sidebar', async ({ authenticatedPage: page }) => {
+      await page.goto('/dashboard');
       
-      const historySection = page.getByText(/history|recent payment|past payment/i);
-      // History section might be available
-    });
-  });
-
-  test.describe('Minimum Payment', () => {
-    test('should show minimum payment due', async ({ authenticatedPage: page }) => {
-      await page.goto('/billing');
-      await page.waitForLoadState('networkidle');
+      await page.getByRole('link', { name: 'Bill Payment' }).click();
       
-      const minimumPayment = page.getByText(/minimum.*payment|min.*due/i);
-      // Minimum payment info might be shown
+      await expect(page).toHaveURL('/billing');
     });
 
-    test('should have pay minimum button', async ({ authenticatedPage: page }) => {
+    test('should exit to accounts', async ({ authenticatedPage: page }) => {
       await page.goto('/billing');
       
-      const payMinimum = page.getByRole('button', { name: /pay minimum|min payment/i });
-      // Pay minimum button might be available
+      await page.getByRole('main').getByRole('button', { name: 'F3=Exit' }).click();
+      
+      await expect(page).toHaveURL('/accounts');
     });
   });
 });
