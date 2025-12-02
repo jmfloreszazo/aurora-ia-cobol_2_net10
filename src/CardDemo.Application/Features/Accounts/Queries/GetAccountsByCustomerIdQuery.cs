@@ -31,6 +31,8 @@ public class GetAccountsByCustomerIdQueryHandler : IRequestHandler<GetAccountsBy
                 CurrentBalance = a.CurrentBalance,
                 CreditLimit = a.CreditLimit,
                 CashCreditLimit = a.CashCreditLimit,
+                AvailableCredit = a.CreditLimit - a.CurrentBalance,
+                NumberOfCards = a.Cards.Count,
                 OpenDate = a.OpenDate,
                 ExpirationDate = a.ExpirationDate,
                 GroupId = a.GroupId ?? string.Empty

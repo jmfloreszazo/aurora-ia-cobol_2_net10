@@ -18,6 +18,8 @@ public record AccountDto
     public decimal CurrentBalance { get; init; }
     public decimal CreditLimit { get; init; }
     public decimal CashCreditLimit { get; init; }
+    public decimal AvailableCredit { get; init; }
+    public int NumberOfCards { get; init; }
     public DateTime OpenDate { get; init; }
     public DateTime ExpirationDate { get; init; }
     public string GroupId { get; init; } = default!;
@@ -37,6 +39,7 @@ public class GetAllAccountsQueryHandler : IRequestHandler<GetAllAccountsQuery, P
     {
         var query = _context.Accounts
             .Include(a => a.Customer)
+            .Include(a => a.Cards)
             .OrderBy(a => a.AccountId);
 
         var totalCount = await query.CountAsync(cancellationToken);
@@ -53,6 +56,8 @@ public class GetAllAccountsQueryHandler : IRequestHandler<GetAllAccountsQuery, P
                 CurrentBalance = a.CurrentBalance,
                 CreditLimit = a.CreditLimit,
                 CashCreditLimit = a.CashCreditLimit,
+                AvailableCredit = a.CreditLimit - a.CurrentBalance,
+                NumberOfCards = a.Cards.Count,
                 OpenDate = a.OpenDate,
                 ExpirationDate = a.ExpirationDate,
                 GroupId = a.GroupId
