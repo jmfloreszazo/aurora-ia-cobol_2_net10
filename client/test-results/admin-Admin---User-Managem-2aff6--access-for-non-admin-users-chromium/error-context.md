@@ -1,0 +1,144 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - generic [ref=e7]: "Tran: CARD"
+        - generic [ref=e8]: CardDemo - Credit Card Management System
+      - generic [ref=e9]:
+        - generic [ref=e10]: "Date: 12/02/25"
+        - generic [ref=e11]: "Time: 10:54:22"
+    - generic [ref=e12]:
+      - generic [ref=e13]: "Prog: REACT-UI"
+      - generic [ref=e14]:
+        - generic [ref=e15]: "User:"
+        - generic [ref=e16]: USER
+        - button "F3=Exit" [ref=e17] [cursor=pointer]
+  - generic [ref=e18]:
+    - complementary [ref=e19]:
+      - button [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+      - navigation [ref=e23]:
+        - link "Dashboard" [ref=e24] [cursor=pointer]:
+          - /url: /dashboard
+          - generic:
+            - img
+          - generic [ref=e26]: Dashboard
+        - link "Accounts" [ref=e27] [cursor=pointer]:
+          - /url: /accounts
+          - generic:
+            - img
+          - generic [ref=e29]: Accounts
+        - link "Cards" [ref=e30] [cursor=pointer]:
+          - /url: /cards
+          - generic:
+            - img
+          - generic [ref=e32]: Cards
+        - link "Transactions" [ref=e33] [cursor=pointer]:
+          - /url: /transactions
+          - generic:
+            - img
+          - generic [ref=e35]: Transactions
+        - link "Bill Payment" [ref=e36] [cursor=pointer]:
+          - /url: /billing
+          - generic:
+            - img
+          - generic [ref=e38]: Bill Payment
+        - link "Reports" [ref=e39] [cursor=pointer]:
+          - /url: /reports
+          - generic:
+            - img
+          - generic [ref=e41]: Reports
+      - generic [ref=e42]:
+        - paragraph [ref=e43]: CardDemo v2.0
+        - paragraph [ref=e44]: Modernized from COBOL
+    - main [ref=e45]:
+      - generic [ref=e46]:
+        - generic [ref=e48]:
+          - generic [ref=e49]:
+            - heading "User List" [level=1] [ref=e50]
+            - paragraph [ref=e51]: Security Administration - User Management
+          - generic [ref=e53]:
+            - button "F3=Admin Menu" [ref=e54] [cursor=pointer]
+            - button "F6=Add User" [ref=e55] [cursor=pointer]
+        - generic [ref=e57]:
+          - generic [ref=e58]:
+            - generic [ref=e59]: Search
+            - textbox "User ID, Name..." [ref=e60]
+          - generic [ref=e61]:
+            - generic [ref=e62]: User Type
+            - combobox [ref=e63]:
+              - option "All Types" [selected]
+              - option "Admin"
+              - option "Manager"
+              - option "User"
+          - generic [ref=e64]:
+            - generic [ref=e65]: Status
+            - combobox [ref=e66]:
+              - option "All Status" [selected]
+              - option "Active"
+              - option "Inactive"
+          - button "Clear Filters" [ref=e68] [cursor=pointer]
+        - generic [ref=e69]:
+          - table [ref=e71]:
+            - rowgroup [ref=e72]:
+              - row "User ID First Name Last Name Type Status Last Login" [ref=e73]:
+                - columnheader "User ID" [ref=e74]
+                - columnheader "First Name" [ref=e75]
+                - columnheader "Last Name" [ref=e76]
+                - columnheader "Type" [ref=e77]
+                - columnheader "Status" [ref=e78]
+                - columnheader "Last Login" [ref=e79]
+            - rowgroup [ref=e80]:
+              - row "ADMIN001 System Administrator ADMIN Active 1/15/2024, 10:30:00 AM" [ref=e81]:
+                - cell "ADMIN001" [ref=e82]
+                - cell "System" [ref=e83]
+                - cell "Administrator" [ref=e84]
+                - cell "ADMIN" [ref=e85]
+                - cell "Active" [ref=e86]
+                - cell "1/15/2024, 10:30:00 AM" [ref=e87]
+              - row "USER001 John Smith USER Active 1/15/2024, 9:45:00 AM" [ref=e88]:
+                - cell "USER001" [ref=e89]
+                - cell "John" [ref=e90]
+                - cell "Smith" [ref=e91]
+                - cell "USER" [ref=e92]
+                - cell "Active" [ref=e93]
+                - cell "1/15/2024, 9:45:00 AM" [ref=e94]
+              - row "USER002 Jane Doe USER Active 1/14/2024, 4:20:00 PM" [ref=e95]:
+                - cell "USER002" [ref=e96]
+                - cell "Jane" [ref=e97]
+                - cell "Doe" [ref=e98]
+                - cell "USER" [ref=e99]
+                - cell "Active" [ref=e100]
+                - cell "1/14/2024, 4:20:00 PM" [ref=e101]
+              - row "USER003 Bob Wilson USER Inactive 12/1/2023, 8:00:00 AM" [ref=e102]:
+                - cell "USER003" [ref=e103]
+                - cell "Bob" [ref=e104]
+                - cell "Wilson" [ref=e105]
+                - cell "USER" [ref=e106]
+                - cell "Inactive" [ref=e107]
+                - cell "12/1/2023, 8:00:00 AM" [ref=e108]
+              - row "MANAGER01 Sarah Johnson MANAGER Active 1/15/2024, 11:15:00 AM" [ref=e109]:
+                - cell "MANAGER01" [ref=e110]
+                - cell "Sarah" [ref=e111]
+                - cell "Johnson" [ref=e112]
+                - cell "MANAGER" [ref=e113]
+                - cell "Active" [ref=e114]
+                - cell "1/15/2024, 11:15:00 AM" [ref=e115]
+          - generic [ref=e117]:
+            - generic [ref=e118]:
+              - text: Page 1 of 1
+              - generic [ref=e119]: Showing 1 to 5 of 5 results
+            - generic [ref=e120]:
+              - button "F7=Backward" [disabled] [ref=e121]
+              - button "F8=Forward" [disabled] [ref=e122]
+  - contentinfo [ref=e123]:
+    - generic [ref=e124]:
+      - generic [ref=e125]: ENTER=Continue
+      - generic [ref=e126]: F3=Exit
+      - generic [ref=e127]: F4=Clear
+      - generic [ref=e128]: F7=Backward
+      - generic [ref=e129]: F8=Forward
+```

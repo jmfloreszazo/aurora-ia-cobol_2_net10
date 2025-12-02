@@ -1,0 +1,90 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - generic [ref=e7]: "Tran: CARD"
+        - generic [ref=e8]: CardDemo - Credit Card Management System
+      - generic [ref=e9]:
+        - generic [ref=e10]: "Date: 12/02/25"
+        - generic [ref=e11]: "Time: 10:54:55"
+    - generic [ref=e12]:
+      - generic [ref=e13]: "Prog: REACT-UI"
+      - generic [ref=e14]:
+        - generic [ref=e15]: "User:"
+        - generic [ref=e16]: USER
+        - button "F3=Exit" [ref=e17] [cursor=pointer]
+  - generic [ref=e18]:
+    - complementary [ref=e19]:
+      - button [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+      - navigation [ref=e23]:
+        - link "Dashboard" [ref=e24] [cursor=pointer]:
+          - /url: /dashboard
+          - generic:
+            - img
+          - generic [ref=e26]: Dashboard
+        - link "Accounts" [ref=e27] [cursor=pointer]:
+          - /url: /accounts
+          - generic:
+            - img
+          - generic [ref=e29]: Accounts
+        - link "Cards" [ref=e30] [cursor=pointer]:
+          - /url: /cards
+          - generic:
+            - img
+          - generic [ref=e32]: Cards
+        - link "Transactions" [ref=e33] [cursor=pointer]:
+          - /url: /transactions
+          - generic:
+            - img
+          - generic [ref=e35]: Transactions
+        - link "Bill Payment" [ref=e36] [cursor=pointer]:
+          - /url: /billing
+          - generic:
+            - img
+          - generic [ref=e38]: Bill Payment
+        - link "Reports" [ref=e39] [cursor=pointer]:
+          - /url: /reports
+          - generic:
+            - img
+          - generic [ref=e41]: Reports
+      - generic [ref=e42]:
+        - paragraph [ref=e43]: CardDemo v2.0
+        - paragraph [ref=e44]: Modernized from COBOL
+    - main [ref=e45]:
+      - generic [ref=e46]:
+        - generic [ref=e48]:
+          - generic [ref=e49]:
+            - heading "List Credit Cards" [level=1] [ref=e50]
+            - paragraph [ref=e51]: View and manage credit cards
+          - generic [ref=e53]: Page 1
+        - generic [ref=e55]:
+          - generic [ref=e56]:
+            - generic [ref=e57]: "Select Customer:"
+            - combobox [ref=e58]:
+              - option "-- Select a Customer --" [selected]
+              - option "1 - John A Doe"
+          - generic [ref=e59]:
+            - generic [ref=e60]: "Account Number:"
+            - combobox [disabled] [ref=e61]:
+              - option "-- Select an Account --" [selected]
+        - generic [ref=e62]:
+          - generic [ref=e63]:
+            - heading "Credit Cards" [level=3] [ref=e64]
+            - generic [ref=e65]:
+              - generic [ref=e66]: Select
+              - generic [ref=e67]: Account Number
+              - generic [ref=e68]: Card Number
+              - generic [ref=e69]: Active
+          - generic [ref=e70]: Please select a customer and account to view cards.
+  - contentinfo [ref=e71]:
+    - generic [ref=e72]:
+      - generic [ref=e73]: ENTER=Continue
+      - generic [ref=e74]: F3=Exit
+      - generic [ref=e75]: F4=Clear
+      - generic [ref=e76]: F7=Backward
+      - generic [ref=e77]: F8=Forward
+```

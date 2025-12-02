@@ -555,15 +555,15 @@ Retorna: CardDto
 ## 📝 Notas de Implementación
 
 ### Priorización de Módulos
-1. **MVP (Phase 1)**: Autenticación + Cuentas + Tarjetas
-2. **Phase 2**: Transacciones + Reportes
-3. **Phase 3**: Pagos + Administración avanzada
-4. **Phase 4**: Features opcionales (autorizaciones, MQ)
+1. **MVP (Phase 1)**: Autenticación + Cuentas + Tarjetas ✅
+2. **Phase 2**: Transacciones + Reportes ✅
+3. **Phase 3**: Pagos + Administración avanzada ✅
+4. **Phase 4**: Batch Processing + Features opcionales ✅
 
 ### Migraciones de Datos
-- Script de migración VSAM → SQL Server
-- Validación de integridad post-migración
-- Plan de rollback con backups
+- Script de migración VSAM → SQL Server ✅
+- Validación de integridad post-migración ✅
+- Plan de rollback con backups ✅
 
 ### Integraciones Futuras
 - API Gateway para rate limiting
@@ -572,7 +572,335 @@ Retorna: CardDto
 
 ---
 
-**Versión**: 1.0  
-**Última Actualización**: 2025-12-01  
+## ⚙️ Especificaciones de Batch Processing
+
+### BP-001: Transaction Posting (CBTRN01C/02C)
+**Propósito**: Procesar transacciones pendientes al final del día
+
+**Entrada**:
+- Transacciones con ProcessedFlag = 'N'
+
+**Proceso**:
+1. Obtener todas las transacciones no procesadas
+2. Para cada transacción:
+   - Validar tarjeta activa y no expirada
+   - Validar cuenta activa
+   - Verificar límite de crédito para débitos
+   - Si válida: actualizar balance y marcar ProcessedFlag='Y'
+   - Si inválida: registrar en log y saltar
+
+**Salida**:
+```json
+{
+  "processed": 150,
+  "skipped": 3,
+  "errors": [],
+  "executedAt": "2025-01-15T23:00:00Z",
+  "duration": "00:00:45"
+}
+```
+
+**Reglas de Negocio**:
+- RN-BP-001: Solo procesar tarjetas activas (ActiveStatus='Y')
+- RN-BP-002: Solo procesar tarjetas no expiradas (ExpirationDate > today)
+- RN-BP-003: Solo procesar cuentas activas (ActiveStatus='Y')
+- RN-BP-004: Rechazar si débito excede límite de crédito disponible
+- RN-BP-005: Actualizar CurrentCycleDebit/Credit según tipo de transacción
+
+---
+
+### BP-002: Interest Calculation (CBACT02C)
+**Propósito**: Calcular y aplicar intereses diarios a cuentas con saldo
+
+**Entrada**:
+- Cuentas activas con CurrentBalance > 0
+
+**Proceso**:
+1. Calcular tasa diaria: APR / 365 = 19.99% / 365 = 0.0548%
+2. Para cada cuenta con saldo positivo:
+   - Calcular interés: Balance × TasaDiaria
+   - Crear transacción tipo 'IN' (Interest)
+   - Actualizar CurrentBalance sumando interés
+
+**Salida**:
+```json
+{
+  "accountsProcessed": 500,
+  "totalInterestCharged": 2345.67,
+  "averageInterest": 4.69,
+  "executedAt": "2025-01-15T02:00:00Z"
+}
+```
+
+**Reglas de Negocio**:
+- RN-BP-006: APR fijo de 19.99% (configurable)
+- RN-BP-007: Solo aplicar a cuentas con saldo > 0
+- RN-BP-008: Redondear interés a 2 decimales
+- RN-BP-009: Crear transacción de interés automáticamente
+
+---
+
+### BP-003: Statement Generation (CBSTM03A/B)
+**Propósito**: Generar estados de cuenta mensuales
+
+**Entrada**:
+- Cuentas en fecha de cierre de ciclo
+
+**Proceso**:
+1. Identificar cuentas con fecha de corte = hoy
+2. Para cada cuenta:
+   - Calcular Previous Balance
+   - Sumar Total Debits (compras, intereses)
+   - Sumar Total Credits (pagos)
+   - Calcular New Balance
+   - Calcular Minimum Payment (2% o $25, lo que sea mayor)
+   - Generar formato de estado de cuenta
+
+**Salida**:
+```json
+{
+  "statementsGenerated": 150,
+  "statements": [
+    {
+      "accountId": "12345678901",
+      "previousBalance": 1234.56,
+      "totalDebits": 789.23,
+      "totalCredits": 500.00,
+      "interestCharged": 15.67,
+      "newBalance": 1539.46,
+      "minimumPayment": 45.00,
+      "dueDate": "2025-02-10"
+    }
+  ]
+}
+```
+
+**Reglas de Negocio**:
+- RN-BP-010: Minimum Payment = MAX(2% of Balance, $25)
+- RN-BP-011: Due Date = Statement Date + 25 días
+- RN-BP-012: Incluir detalle de transacciones del ciclo
+
+---
+
+### BP-004: Data Export (CBEXPORT)
+**Propósito**: Exportar datos en formatos COBOL-compatible y modernos
+
+**Formatos Soportados**:
+
+| Formato | Descripción | Uso |
+|---------|-------------|-----|
+| FIXED | Campos longitud fija | Sistemas legacy |
+| CSV | Comma-separated | Excel, análisis |
+| JSON | JavaScript Object Notation | APIs, web |
+
+**Entidades Exportables**:
+- Accounts (cuentas)
+- Transactions (transacciones)
+- Customers (clientes)
+- Cards (tarjetas)
+
+**Layout Fixed-Width (Accounts)**:
+```
+Pos 01-11:  AccountId (11 numeric)
+Pos 12-36:  CustomerName (25 alpha)
+Pos 37:     ActiveStatus (1 alpha Y/N)
+Pos 38-49:  CurrentBalance (10.2 decimal)
+Pos 50-61:  CreditLimit (10.2 decimal)
+Pos 62-73:  CashCreditLimit (10.2 decimal)
+Pos 74-81:  OpenDate (YYYYMMDD)
+Pos 82-89:  ExpirationDate (YYYYMMDD)
+Pos 90-97:  ReissueDate (YYYYMMDD)
+Total: 97 bytes por registro
+```
+
+---
+
+### BP-005: Nightly Batch Cycle
+**Propósito**: Ejecutar todos los procesos batch en secuencia correcta
+
+**Secuencia de Ejecución**:
+1. **23:00** - Transaction Posting
+2. **02:00** - Interest Calculation
+3. **04:00** - Statement Generation (si fecha de corte)
+4. **05:00** - Data Export (backup)
+
+**Orquestación**:
+```csharp
+public async Task<NightlyBatchResult> RunNightlyBatchAsync()
+{
+    var results = new NightlyBatchResult();
+    
+    // Step 1: Post transactions
+    results.Posting = await _postingService.PostPendingTransactionsAsync();
+    
+    // Step 2: Calculate interest
+    results.Interest = await _interestService.CalculateDailyInterestAsync();
+    
+    // Step 3: Generate statements
+    results.Statements = await _statementService.GenerateStatementsAsync();
+    
+    // Step 4: Export data
+    results.Export = await _exportService.ExportAllAsync("json");
+    
+    results.CompletedAt = DateTime.UtcNow;
+    return results;
+}
+```
+
+---
+
+## 💳 Especificaciones de Billing (COBIL00C)
+
+### BL-001: Bill Payment
+**Propósito**: Permitir pagos parciales o totales de facturas
+
+**Endpoint**: `POST /api/payments`
+
+**Entrada**:
+```json
+{
+  "accountId": "12345678901",
+  "amount": 500.00,
+  "paymentMethod": "ACH",
+  "sourceAccount": "XXXX4567"
+}
+```
+
+**Validaciones**:
+- RN-BL-001: Amount debe ser > 0
+- RN-BL-002: Amount no puede exceder CurrentBalance
+- RN-BL-003: Cuenta debe estar activa
+
+**Proceso**:
+1. Validar datos de entrada
+2. Crear transacción tipo 'PA' (Payment)
+3. Reducir CurrentBalance en Amount
+4. Incrementar CurrentCycleCredit
+5. Registrar en audit log
+
+**Salida**:
+```json
+{
+  "success": true,
+  "transactionId": "PAY20250115001234",
+  "newBalance": 1039.46,
+  "message": "Payment processed successfully"
+}
+```
+
+---
+
+### BL-002: Pay Full Balance
+**Propósito**: Pagar el saldo completo de una cuenta
+
+**Endpoint**: `POST /api/payments/pay-full`
+
+**Entrada**:
+```json
+{
+  "accountId": "12345678901",
+  "paymentMethod": "ACH"
+}
+```
+
+**Proceso**:
+1. Obtener CurrentBalance de la cuenta
+2. Crear transacción de pago por el total
+3. Establecer CurrentBalance = 0
+4. Actualizar ciclo de créditos
+
+**Salida**:
+```json
+{
+  "success": true,
+  "transactionId": "PAY20250115001235",
+  "amountPaid": 1539.46,
+  "newBalance": 0.00,
+  "message": "Full balance paid successfully"
+}
+```
+
+---
+
+## 📊 Especificaciones de Reports (CORPT00C)
+
+### RP-001: Monthly Transaction Report
+**Propósito**: Resumen de transacciones del mes actual
+
+**Endpoint**: `GET /api/reports/monthly?accountId={id}&month={MM}&year={YYYY}`
+
+**Salida**:
+```json
+{
+  "accountId": "12345678901",
+  "period": "2025-01",
+  "summary": {
+    "totalDebits": 2345.67,
+    "totalCredits": 1000.00,
+    "netChange": 1345.67,
+    "transactionCount": 45
+  },
+  "byCategory": [
+    { "category": "Restaurants", "amount": 456.78, "count": 12 },
+    { "category": "Gas", "amount": 234.56, "count": 8 }
+  ],
+  "transactions": [ /* detailed list */ ]
+}
+```
+
+---
+
+### RP-002: Yearly Summary Report
+**Propósito**: Resumen anual de actividad de cuenta
+
+**Endpoint**: `GET /api/reports/yearly?accountId={id}&year={YYYY}`
+
+**Salida**:
+```json
+{
+  "accountId": "12345678901",
+  "year": 2025,
+  "monthlyBreakdown": [
+    { "month": "January", "debits": 2345.67, "credits": 1000.00 },
+    { "month": "February", "debits": 1890.23, "credits": 800.00 }
+  ],
+  "yearTotal": {
+    "totalDebits": 28456.78,
+    "totalCredits": 15000.00,
+    "interestPaid": 890.34,
+    "averageBalance": 3456.78
+  }
+}
+```
+
+---
+
+### RP-003: Custom Date Range Report
+**Propósito**: Reporte personalizado por rango de fechas
+
+**Endpoint**: `GET /api/reports/custom?accountId={id}&from={date}&to={date}`
+
+**Filtros Adicionales**:
+- `type`: Tipo de transacción (Purchase, Payment, Interest)
+- `category`: Categoría (Restaurants, Gas, etc.)
+- `minAmount`: Monto mínimo
+- `maxAmount`: Monto máximo
+
+---
+
+### RP-004: Export Report
+**Propósito**: Exportar reportes en diferentes formatos
+
+**Endpoint**: `GET /api/reports/export?format={pdf|excel|csv}`
+
+**Formatos**:
+- **PDF**: Documento formateado para impresión
+- **Excel**: Spreadsheet con gráficos
+- **CSV**: Datos planos para análisis
+
+---
+
+**Versión**: 2.0  
+**Última Actualización**: 2025-01-15  
 **Método**: AURORA-IA™  
-**Estado**: ✅ Especificación Completa
+**Estado**: ✅ Especificación Completa - PROYECTO FINALIZADO

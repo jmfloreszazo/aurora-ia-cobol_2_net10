@@ -1,0 +1,130 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - generic [ref=e7]: "Tran: CARD"
+        - generic [ref=e8]: CardDemo - Credit Card Management System
+      - generic [ref=e9]:
+        - generic [ref=e10]: "Date: 12/02/25"
+        - generic [ref=e11]: "Time: 10:55:07"
+    - generic [ref=e12]:
+      - generic [ref=e13]: "Prog: REACT-UI"
+      - generic [ref=e14]:
+        - generic [ref=e15]: "User:"
+        - generic [ref=e16]: USER
+        - button "F3=Exit" [ref=e17] [cursor=pointer]
+  - generic [ref=e18]:
+    - complementary [ref=e19]:
+      - button [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+      - navigation [ref=e23]:
+        - link "Dashboard" [ref=e24] [cursor=pointer]:
+          - /url: /dashboard
+          - generic:
+            - img
+          - generic [ref=e26]: Dashboard
+        - link "Accounts" [ref=e27] [cursor=pointer]:
+          - /url: /accounts
+          - generic:
+            - img
+          - generic [ref=e29]: Accounts
+        - link "Cards" [ref=e30] [cursor=pointer]:
+          - /url: /cards
+          - generic:
+            - img
+          - generic [ref=e32]: Cards
+        - link "Transactions" [ref=e33] [cursor=pointer]:
+          - /url: /transactions
+          - generic:
+            - img
+          - generic [ref=e35]: Transactions
+        - link "Bill Payment" [ref=e36] [cursor=pointer]:
+          - /url: /billing
+          - generic:
+            - img
+          - generic [ref=e38]: Bill Payment
+        - link "Reports" [ref=e39] [cursor=pointer]:
+          - /url: /reports
+          - generic:
+            - img
+          - generic [ref=e41]: Reports
+      - generic [ref=e42]:
+        - paragraph [ref=e43]: CardDemo v2.0
+        - paragraph [ref=e44]: Modernized from COBOL
+    - main [ref=e45]:
+      - generic [ref=e46]:
+        - generic [ref=e48]:
+          - generic [ref=e49]:
+            - heading "Transaction Reports" [level=1] [ref=e50]
+            - paragraph [ref=e51]: Generate transaction reports by period
+          - generic [ref=e53]:
+            - button "F3=Exit" [ref=e54] [cursor=pointer]
+            - button "F4=Clear" [ref=e55] [cursor=pointer]
+        - generic [ref=e57]:
+          - generic [ref=e58]:
+            - heading "Report Type" [level=3] [ref=e60]
+            - generic [ref=e62]:
+              - generic [ref=e63]:
+                - radio "Monthly Report" [checked] [ref=e64]
+                - generic [ref=e65]: Monthly Report
+              - generic [ref=e66]:
+                - radio "Yearly Report" [ref=e67]
+                - generic [ref=e68]: Yearly Report
+              - generic [ref=e69]:
+                - radio "Custom Date Range" [ref=e70]
+                - generic [ref=e71]: Custom Date Range
+          - generic [ref=e72]:
+            - heading "Period Selection" [level=3] [ref=e74]
+            - generic [ref=e76]:
+              - generic [ref=e77]:
+                - generic [ref=e78]:
+                  - generic [ref=e79]: Month
+                  - combobox [ref=e80]:
+                    - option "January"
+                    - option "February"
+                    - option "March"
+                    - option "April"
+                    - option "May"
+                    - option "June"
+                    - option "July"
+                    - option "August"
+                    - option "September"
+                    - option "October"
+                    - option "November"
+                    - option "December" [selected]
+                - generic [ref=e81]:
+                  - generic [ref=e82]: Year
+                  - combobox [ref=e83]:
+                    - option "2025" [selected]
+                    - option "2024"
+                    - option "2023"
+                    - option "2022"
+                    - option "2021"
+              - generic [ref=e84]:
+                - generic [ref=e85]: Account (Optional)
+                - combobox [ref=e86]:
+                  - option "All Accounts" [selected]
+          - generic [ref=e87]:
+            - heading "Output Options" [level=3] [ref=e89]
+            - generic [ref=e91]:
+              - generic [ref=e92]:
+                - radio "Display on Screen" [checked] [ref=e93]
+                - generic [ref=e94]: Display on Screen
+              - generic [ref=e95]:
+                - radio "Print Report" [ref=e96]
+                - generic [ref=e97]: Print Report
+              - generic [ref=e98]:
+                - radio "Both (Display & Print)" [ref=e99]
+                - generic [ref=e100]: Both (Display & Print)
+              - button "F5=Generate Report" [ref=e102] [cursor=pointer]
+  - contentinfo [ref=e103]:
+    - generic [ref=e104]:
+      - generic [ref=e105]: ENTER=Continue
+      - generic [ref=e106]: F3=Exit
+      - generic [ref=e107]: F4=Clear
+      - generic [ref=e108]: F7=Backward
+      - generic [ref=e109]: F8=Forward
+```

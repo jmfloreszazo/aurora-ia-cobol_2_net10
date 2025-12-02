@@ -1,0 +1,151 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - generic [ref=e7]: "Tran: CARD"
+        - generic [ref=e8]: CardDemo - Credit Card Management System
+      - generic [ref=e9]:
+        - generic [ref=e10]: "Date: 12/02/25"
+        - generic [ref=e11]: "Time: 10:55:13"
+    - generic [ref=e12]:
+      - generic [ref=e13]: "Prog: REACT-UI"
+      - generic [ref=e14]:
+        - generic [ref=e15]: "User:"
+        - generic [ref=e16]: USER
+        - button "F3=Exit" [ref=e17] [cursor=pointer]
+  - generic [ref=e18]:
+    - complementary [ref=e19]:
+      - button [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+      - navigation [ref=e23]:
+        - link "Dashboard" [ref=e24] [cursor=pointer]:
+          - /url: /dashboard
+          - generic:
+            - img
+          - generic [ref=e26]: Dashboard
+        - link "Accounts" [ref=e27] [cursor=pointer]:
+          - /url: /accounts
+          - generic:
+            - img
+          - generic [ref=e29]: Accounts
+        - link "Cards" [ref=e30] [cursor=pointer]:
+          - /url: /cards
+          - generic:
+            - img
+          - generic [ref=e32]: Cards
+        - link "Transactions" [ref=e33] [cursor=pointer]:
+          - /url: /transactions
+          - generic:
+            - img
+          - generic [ref=e35]: Transactions
+        - link "Bill Payment" [ref=e36] [cursor=pointer]:
+          - /url: /billing
+          - generic:
+            - img
+          - generic [ref=e38]: Bill Payment
+        - link "Reports" [ref=e39] [cursor=pointer]:
+          - /url: /reports
+          - generic:
+            - img
+          - generic [ref=e41]: Reports
+      - generic [ref=e42]:
+        - paragraph [ref=e43]: CardDemo v2.0
+        - paragraph [ref=e44]: Modernized from COBOL
+    - main [ref=e45]:
+      - generic [ref=e46]:
+        - generic [ref=e48]:
+          - generic [ref=e49]:
+            - heading "Add Transaction" [level=1] [ref=e50]
+            - paragraph [ref=e51]: Enter new transaction details
+          - generic [ref=e53]:
+            - button "F3=Cancel" [ref=e54] [cursor=pointer]
+            - button "F4=Clear" [ref=e55] [cursor=pointer]
+        - generic [ref=e56]:
+          - generic [ref=e57]:
+            - generic [ref=e58]:
+              - heading "Account & Card" [level=3] [ref=e60]
+              - generic [ref=e62]:
+                - generic [ref=e64]:
+                  - generic [ref=e65]: Account*
+                  - combobox [ref=e66]:
+                    - option "Select Account" [selected]
+                - generic [ref=e68]:
+                  - generic [ref=e69]: Card*
+                  - combobox [disabled] [ref=e70]:
+                    - option "Select Card" [selected]
+            - generic [ref=e71]:
+              - heading "Transaction Type" [level=3] [ref=e73]
+              - generic [ref=e75]:
+                - generic [ref=e76]:
+                  - generic [ref=e77]:
+                    - generic [ref=e78]: Type*
+                    - combobox [ref=e79]:
+                      - option "Purchase" [selected]
+                      - option "Return"
+                      - option "Payment"
+                      - option "Cash Advance"
+                      - option "Balance Transfer"
+                      - option "Fee"
+                      - option "Interest Charge"
+                      - option "Adjustment"
+                  - generic [ref=e80]:
+                    - generic [ref=e81]: Source*
+                    - combobox [ref=e82]:
+                      - option "Point of Sale" [selected]
+                      - option "Online"
+                      - option "ATM"
+                      - option "Recurring"
+                      - option "Manual Entry"
+                - generic [ref=e83]:
+                  - generic [ref=e84]: Category*
+                  - combobox [ref=e85]:
+                    - option "5411 - Grocery Stores" [selected]
+                    - option "5541 - Service Stations"
+                    - option "5812 - Restaurants"
+                    - option "5999 - Miscellaneous Retail"
+                    - option "6011 - ATM Withdrawals"
+                    - option "7011 - Hotels"
+                    - option "4111 - Transportation"
+                    - option "5311 - Department Stores"
+            - generic [ref=e86]:
+              - heading "Transaction Details" [level=3] [ref=e88]
+              - generic [ref=e90]:
+                - generic [ref=e91]:
+                  - generic [ref=e92]: Description*
+                  - textbox "Transaction description" [ref=e93]
+                - generic [ref=e94]:
+                  - generic [ref=e95]:
+                    - generic [ref=e96]: Amount*
+                    - spinbutton [ref=e97]
+                  - generic [ref=e98]:
+                    - generic [ref=e99]: Date*
+                    - textbox [ref=e100]: 2025-12-02
+            - generic [ref=e101]:
+              - heading "Merchant Information (Optional)" [level=3] [ref=e103]
+              - generic [ref=e105]:
+                - generic [ref=e106]:
+                  - generic [ref=e107]:
+                    - generic [ref=e108]: Merchant ID
+                    - textbox [ref=e109]
+                  - generic [ref=e110]:
+                    - generic [ref=e111]: Merchant Name
+                    - textbox [ref=e112]
+                - generic [ref=e113]:
+                  - generic [ref=e114]:
+                    - generic [ref=e115]: City
+                    - textbox [ref=e116]
+                  - generic [ref=e117]:
+                    - generic [ref=e118]: Zip Code
+                    - textbox [ref=e119]
+          - button "F5=Submit Transaction" [ref=e121] [cursor=pointer]
+  - contentinfo [ref=e122]:
+    - generic [ref=e123]:
+      - generic [ref=e124]: ENTER=Continue
+      - generic [ref=e125]: F3=Exit
+      - generic [ref=e126]: F4=Clear
+      - generic [ref=e127]: F7=Backward
+      - generic [ref=e128]: F8=Forward
+```

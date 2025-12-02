@@ -1,50 +1,111 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# CardDemo Modernization Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. COBOL Parity First
+Every feature implemented must maintain functional parity with the original COBOL/CICS system:
+- Preserve all business logic from legacy programs (COSGN00C, COACTVWC, COCRDSLC, COTRN00C, etc.)
+- Maintain data integrity and relationships from VSAM files
+- Support all original user workflows and screens
+- Batch processing must replicate JCL job behavior
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Clean Architecture (NON-NEGOTIABLE)
+The solution follows Clean Architecture principles:
+- **Domain Layer**: Pure business logic, no external dependencies
+- **Application Layer**: Use cases, CQRS commands/queries, DTOs
+- **Infrastructure Layer**: Data access, external services
+- **API Layer**: Controllers, middleware, presentation concerns
+- Each layer can only depend on inner layers
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Test-Driven Migration
+All migration work follows TDD principles:
+- Write Gherkin scenarios first (from COBOL behavior)
+- Implement tests that verify COBOL parity
+- Implement code to pass tests
+- Refactor while maintaining green tests
+- Minimum 80% code coverage required
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. API-First Design
+RESTful API is the primary interface:
+- OpenAPI/Swagger documentation required
+- Consistent response format across all endpoints
+- Proper HTTP status codes and error handling
+- JWT authentication on all protected endpoints
+- Role-based authorization (USER/ADMIN)
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Security by Default
+Security is embedded in all layers:
+- Passwords hashed with bcrypt (salt rounds=12)
+- JWT tokens with short expiration (15 min access, 7 day refresh)
+- Input validation on all endpoints (FluentValidation)
+- SQL injection prevention via parameterized queries
+- CORS configured for specific origins
+- Audit logging for critical operations
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+### VI. Observable & Debuggable
+All components must be observable:
+- Structured logging with Serilog
+- Request/response logging middleware
+- Performance metrics collection
+- Health check endpoints
+- Error tracking and alerting
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+## Technology Stack
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+### Backend (Mandatory)
+- .NET 10 Web API
+- Entity Framework Core (Code-First)
+- MediatR for CQRS
+- FluentValidation for input validation
+- AutoMapper for DTO mapping
+- xUnit + FluentAssertions + Moq for testing
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### Frontend (Mandatory)
+- React 18 with TypeScript
+- Vite as build tool
+- TailwindCSS for styling
+- React Query for server state
+- React Router for navigation
+- Axios for API communication
+
+### Database (Mandatory)
+- SQL Server (or SQL Server compatible)
+- Normalized schema based on VSAM structure
+- Proper indexes for performance
+- Foreign key constraints enforced
+
+## Development Workflow
+
+### Branch Strategy
+- `main`: Production-ready code only
+- `develop`: Integration branch
+- `feature/*`: Individual features
+- `bugfix/*`: Bug fixes
+- All merges via Pull Request with review
+
+### Code Review Requirements
+- At least 1 approval required
+- All tests must pass
+- No decrease in code coverage
+- Lint/format checks must pass
+- Gherkin scenarios verified
+
+### Quality Gates
+- Unit tests: > 80% coverage
+- Integration tests: Critical paths covered
+- Contract tests: All Gherkin scenarios pass
+- Performance: API < 200ms p95
+- Security: No critical vulnerabilities
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution supersedes all other development practices for the CardDemo modernization project.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+Amendments require:
+1. Documentation of proposed change
+2. Impact analysis
+3. Team consensus
+4. Update to this document
+5. Communication to all stakeholders
+
+**Version**: 1.0 | **Ratified**: 2025-12-01 | **Last Amended**: 2025-12-02
