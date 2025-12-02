@@ -1,4 +1,4 @@
-﻿namespace CardDemo.Tests;
+namespace CardDemo.Tests;
 
 public class UnitTest1
 {
